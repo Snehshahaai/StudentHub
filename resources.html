@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Digital Resource Library — StudentHub</title>
+  <meta name="description" content="Searchable repository of past exam papers, lecture slides, textbook PDFs, and reference cheat sheets.">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/wireframe.css">
+</head>
+<body>
+
+  <header class="app-header">
+    <div class="brand-container">
+      <div class="brand-logo">🎓</div>
+      <span class="brand-name">StudentHub</span>
+    </div>
+
+    <ul class="nav-links">
+      <li class="nav-item"><a href="index.html">Home</a></li>
+      <li class="nav-item"><a href="dashboard.html">Dashboard</a></li>
+      <li class="nav-item"><a href="courses.html">Courses</a></li>
+      <li class="nav-item"><a href="assignments.html">Assignments</a></li>
+      <li class="nav-item active"><a href="resources.html">Resources</a></li>
+      <li class="nav-item"><a href="events.html">Events</a></li>
+      <li class="nav-item"><a href="forum.html">Forum</a></li>
+      <li class="nav-item"><a href="notices.html">Notices</a></li>
+      <li class="nav-item"><a href="admin.html">Admin</a></li>
+    </ul>
+
+    <div class="header-actions">
+      <button class="btn-wireframe-toggle">📐 Wireframe Mode</button>
+      <span class="role-badge role-student" id="headerRoleBadge">Student</span>
+      <a href="profile.html" class="user-profile-btn">
+        <div class="avatar" id="headerAvatar">AM</div>
+      </a>
+    </div>
+  </header>
+
+  <main class="main-container">
+    
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">📖 Digital Library & Past Papers</h1>
+        <p class="page-subtitle">Centralized peer and faculty repository for study materials, solution guides, and past exams.</p>
+      </div>
+      <div>
+        <button class="btn btn-primary" onclick="AppController.showToast('Upload Resource modal opened')">+ Upload Study Material</button>
+      </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+      <div class="search-box">
+        <span>🔍</span>
+        <input type="text" id="resSearchInput" placeholder="Search resources by keyword or topic..." oninput="filterResources()">
+      </div>
+
+      <select class="filter-select" id="resCatFilter" onchange="filterResources()">
+        <option value="all">All Categories</option>
+        <option value="Exam Paper">Past Exam Papers</option>
+        <option value="Study Guide">Study Guides</option>
+        <option value="Lecture Notes">Lecture Notes</option>
+        <option value="Cheatsheet">CheatSheets</option>
+      </select>
+    </div>
+
+    <!-- Resource Table -->
+    <div class="card" style="padding:0; overflow:hidden;">
+      <div class="table-container">
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>Document Title</th>
+              <th>Course / Subject</th>
+              <th>Category</th>
+              <th>File Info</th>
+              <th>Uploaded By</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="resourceTableBody">
+            <!-- Dynamically populated -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="app-footer">
+    <div class="footer-bottom">
+      <div>© 2026 StudentHub Semester Project. All rights reserved.</div>
+      <button class="btn-wireframe-toggle">📐 Toggle Low-Fi Wireframe Mode</button>
+    </div>
+  </footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    function renderResources(items) {
+      const tbody = document.getElementById("resourceTableBody");
+      tbody.innerHTML = "";
+
+      items.forEach(item => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td style="font-weight:600; color:#fff;">
+            📄 ${item.title}
+          </td>
+          <td style="color:var(--text-muted);">${item.course}</td>
+          <td><span class="badge badge-info">${item.category}</span></td>
+          <td style="color:var(--text-dim);">${item.fileType} (${item.size})</td>
+          <td style="color:var(--text-muted);">${item.uploader}</td>
+          <td>
+            <button class="btn btn-outline-cyan btn-sm" onclick="AppController.showToast('Downloading ${item.title}...')">
+              ⬇️ Download
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function filterResources() {
+      const query = document.getElementById("resSearchInput").value.toLowerCase();
+      const cat = document.getElementById("resCatFilter").value;
+
+      const filtered = StudentHubData.resources.filter(r => {
+        const matchesQuery = r.title.toLowerCase().includes(query) || r.course.toLowerCase().includes(query);
+        const matchesCat = cat === "all" || r.category === cat;
+        return matchesQuery && matchesCat;
+      });
+
+      renderResources(filtered);
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      renderResources(StudentHubData.resources);
+    });
+  </script>
+</body>
+</html>

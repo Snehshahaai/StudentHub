@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Assignment Hub & Submissions — StudentHub</title>
+  <meta name="description" content="View coursework prompts, track submission deadlines, submit project files, and check instructor grades.">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/wireframe.css">
+</head>
+<body>
+
+  <header class="app-header">
+    <div class="brand-container">
+      <div class="brand-logo">🎓</div>
+      <span class="brand-name">StudentHub</span>
+    </div>
+
+    <ul class="nav-links">
+      <li class="nav-item"><a href="index.html">Home</a></li>
+      <li class="nav-item"><a href="dashboard.html">Dashboard</a></li>
+      <li class="nav-item"><a href="courses.html">Courses</a></li>
+      <li class="nav-item active"><a href="assignments.html">Assignments</a></li>
+      <li class="nav-item"><a href="resources.html">Resources</a></li>
+      <li class="nav-item"><a href="events.html">Events</a></li>
+      <li class="nav-item"><a href="forum.html">Forum</a></li>
+      <li class="nav-item"><a href="notices.html">Notices</a></li>
+      <li class="nav-item"><a href="admin.html">Admin</a></li>
+    </ul>
+
+    <div class="header-actions">
+      <button class="btn-wireframe-toggle">📐 Wireframe Mode</button>
+      <span class="role-badge role-student" id="headerRoleBadge">Student</span>
+      <a href="profile.html" class="user-profile-btn">
+        <div class="avatar" id="headerAvatar">AM</div>
+      </a>
+    </div>
+  </header>
+
+  <main class="main-container">
+    
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">📝 Assignment Hub & File Submissions</h1>
+        <p class="page-subtitle">Track deadlines, submit solution artifacts, and review instructor grades and feedback.</p>
+      </div>
+      <div>
+        <button class="btn btn-primary" onclick="openSubmitModal('ASG-101')">📤 Quick Submit</button>
+      </div>
+    </div>
+
+    <!-- Assignment Cards List -->
+    <div style="display: flex; flex-direction: column; gap: 1.5rem;" id="assignmentList">
+      <!-- Dynamically populated -->
+    </div>
+
+    <!-- File Submission Modal Simulator -->
+    <div class="modal-overlay" id="submissionModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="modal-title">📤 Submit Coursework Artifact</h3>
+          <button class="close-modal-btn">&times;</button>
+        </div>
+
+        <form onsubmit="handleSubmission(event)">
+          <input type="hidden" id="modalAsgId">
+          <div class="form-group">
+            <label>Assignment ID / Title</label>
+            <input type="text" id="modalAsgTitle" class="form-control" readonly>
+          </div>
+
+          <div class="form-group">
+            <label>Upload Solution File (.zip, .pdf, .docx)</label>
+            <input type="file" class="form-control" required style="padding: 0.4rem;">
+          </div>
+
+          <div class="form-group">
+            <label>Submission Comments / Notes for Instructor</label>
+            <textarea class="form-control" rows="3" placeholder="Include repository URLs or submission remarks..."></textarea>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+            <button type="button" class="btn btn-secondary" onclick="AppController.closeModal('submissionModal')">Cancel</button>
+            <button type="submit" class="btn btn-primary">Confirm Submission</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="app-footer">
+    <div class="footer-bottom">
+      <div>© 2026 StudentHub Semester Project. All rights reserved.</div>
+      <button class="btn-wireframe-toggle">📐 Toggle Low-Fi Wireframe Mode</button>
+    </div>
+  </footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    function renderAssignments() {
+      const container = document.getElementById("assignmentList");
+      container.innerHTML = "";
+
+      StudentHubData.assignments.forEach(asg => {
+        const card = document.createElement("div");
+        card.className = "card";
+
+        let statusBadge = `<span class="badge badge-urgent">Pending</span>`;
+        if (asg.status === "Submitted") statusBadge = `<span class="badge badge-info">Submitted</span>`;
+        if (asg.status === "Graded") statusBadge = `<span class="badge badge-success">Graded: ${asg.grade}</span>`;
+
+        card.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.5rem; flex-wrap:wrap; gap:0.5rem;">
+            <div>
+              <span class="badge badge-info" style="margin-bottom:0.25rem;">${asg.courseId}</span>
+              <h3 style="font-size:1.25rem; font-weight:700; color:#fff;">${asg.title}</h3>
+            </div>
+            <div>${statusBadge}</div>
+          </div>
+
+          <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:1rem;">${asg.description}</p>
+
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; border-top:1px solid var(--border-color); padding-top:0.85rem; font-size:0.88rem;">
+            <div style="color:var(--text-dim);">
+              ⏱️ <strong>Due Date:</strong> ${asg.dueDate} ${asg.status === 'Pending' ? `(${asg.daysLeft} days remaining)` : ''} | Total Points: ${asg.totalPoints}
+            </div>
+
+            <div>
+              ${asg.status === 'Pending' ? `
+                <button class="btn btn-primary btn-sm" onclick="openSubmitModal('${asg.id}')">📤 Submit File</button>
+              ` : `
+                <button class="btn btn-secondary btn-sm" disabled>Submitted & Locked</button>
+              `}
+            </div>
+          </div>
+
+          ${asg.feedback ? `
+            <div style="margin-top:0.85rem; background:rgba(16,185,129,0.1); border-left:3px solid var(--accent-emerald); padding:0.65rem; font-size:0.85rem; color:#34d399;">
+              💬 <strong>Instructor Feedback:</strong> ${asg.feedback}
+            </div>
+          ` : ''}
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    function openSubmitModal(asgId) {
+      const asg = StudentHubData.assignments.find(a => a.id === asgId) || StudentHubData.assignments[0];
+      document.getElementById("modalAsgId").value = asg.id;
+      document.getElementById("modalAsgTitle").value = `[${asg.courseId}] ${asg.title}`;
+      AppController.openModal("submissionModal");
+    }
+
+    function handleSubmission(e) {
+      e.preventDefault();
+      const asgId = document.getElementById("modalAsgId").value;
+      const asg = StudentHubData.assignments.find(a => a.id === asgId);
+      if (asg) {
+        asg.status = "Submitted";
+      }
+      AppController.closeModal("submissionModal");
+      AppController.showToast("Assignment submitted successfully! 🎉");
+      renderAssignments();
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      renderAssignments();
+    });
+  </script>
+</body>
+</html>

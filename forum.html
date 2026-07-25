@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Community Q&A Forum — StudentHub</title>
+  <meta name="description" content="Peer-to-peer student discussion board, subject Q&A, and technical problem solving.">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/wireframe.css">
+</head>
+<body>
+
+  <header class="app-header">
+    <div class="brand-container">
+      <div class="brand-logo">🎓</div>
+      <span class="brand-name">StudentHub</span>
+    </div>
+
+    <ul class="nav-links">
+      <li class="nav-item"><a href="index.html">Home</a></li>
+      <li class="nav-item"><a href="dashboard.html">Dashboard</a></li>
+      <li class="nav-item"><a href="courses.html">Courses</a></li>
+      <li class="nav-item"><a href="assignments.html">Assignments</a></li>
+      <li class="nav-item"><a href="resources.html">Resources</a></li>
+      <li class="nav-item"><a href="events.html">Events</a></li>
+      <li class="nav-item active"><a href="forum.html">Forum</a></li>
+      <li class="nav-item"><a href="notices.html">Notices</a></li>
+      <li class="nav-item"><a href="admin.html">Admin</a></li>
+    </ul>
+
+    <div class="header-actions">
+      <button class="btn-wireframe-toggle">📐 Wireframe Mode</button>
+      <span class="role-badge role-student" id="headerRoleBadge">Student</span>
+      <a href="profile.html" class="user-profile-btn">
+        <div class="avatar" id="headerAvatar">AM</div>
+      </a>
+    </div>
+  </header>
+
+  <main class="main-container">
+    
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">💬 Community Q&A Forum</h1>
+        <p class="page-subtitle">Collaborate with peers, ask technical questions, and share academic solutions.</p>
+      </div>
+      <div>
+        <button class="btn btn-primary" onclick="AppController.openModal('askQuestionModal')">💬 Ask a Question</button>
+      </div>
+    </div>
+
+    <!-- Forum Threads List -->
+    <div style="display: flex; flex-direction: column; gap: 1.25rem;" id="forumThreadList">
+      <!-- Injected dynamically -->
+    </div>
+
+    <!-- Ask Question Modal -->
+    <div class="modal-overlay" id="askQuestionModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="modal-title">💬 Post New Discussion Thread</h3>
+          <button class="close-modal-btn">&times;</button>
+        </div>
+
+        <form onsubmit="handlePostThread(event)">
+          <div class="form-group">
+            <label>Question Title / Problem Summary</label>
+            <input type="text" id="newThreadTitle" class="form-control" placeholder="e.g. How to resolve CORS error in Node.js backend?" required>
+          </div>
+
+          <div class="form-group">
+            <label>Select Course / Topic</label>
+            <select class="form-control" id="newThreadCourse">
+              <option value="CS101 Web Development">CS101 Web Development</option>
+              <option value="CS202 Algorithms">CS202 Algorithms</option>
+              <option value="CS303 DBMS">CS303 DBMS</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Detailed Problem Description</label>
+            <textarea id="newThreadContent" class="form-control" rows="4" placeholder="Provide background code snippet or error log..." required></textarea>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+            <button type="button" class="btn btn-secondary" onclick="AppController.closeModal('askQuestionModal')">Cancel</button>
+            <button type="submit" class="btn btn-primary">Publish Question</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="app-footer">
+    <div class="footer-bottom">
+      <div>© 2026 StudentHub Semester Project. All rights reserved.</div>
+      <button class="btn-wireframe-toggle">📐 Toggle Low-Fi Wireframe Mode</button>
+    </div>
+  </footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    function renderForumThreads() {
+      const container = document.getElementById("forumThreadList");
+      container.innerHTML = "";
+
+      StudentHubData.forumThreads.forEach(thread => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `
+          <div style="display:flex; gap:1.25rem; align-items:flex-start;">
+            
+            <div style="text-align:center; min-width:60px;">
+              <button class="btn btn-secondary btn-sm" onclick="upvoteThread('${thread.id}')" style="width:100%; margin-bottom:0.25rem;">
+                ▲ ${thread.upvotes}
+              </button>
+              <span style="font-size:0.75rem; color:var(--text-dim);">Upvotes</span>
+            </div>
+
+            <div style="flex:1;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.25rem; flex-wrap:wrap;">
+                <span class="badge badge-info">${thread.course}</span>
+                ${thread.isSolved ? `<span class="badge badge-success">✓ Solved</span>` : `<span class="badge badge-urgent">Unresolved</span>`}
+              </div>
+
+              <h3 style="font-size:1.15rem; font-weight:700; color:#fff; margin-bottom:0.35rem;">${thread.title}</h3>
+              <p style="color:var(--text-muted); font-size:0.88rem; margin-bottom:0.75rem;">${thread.content}</p>
+
+              <div style="display:flex; gap:0.5rem; margin-bottom:0.75rem;">
+                ${thread.tags.map(t => `<span style="background:rgba(255,255,255,0.06); color:var(--text-muted); font-size:0.75rem; padding:0.15rem 0.5rem; border-radius:4px;">#${t}</span>`).join('')}
+              </div>
+
+              <div style="font-size:0.8rem; color:var(--text-dim);">
+                Asked by <strong>${thread.author}</strong> • ${thread.date} • ${thread.replies} Replies
+              </div>
+            </div>
+
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function upvoteThread(id) {
+      const thread = StudentHubData.forumThreads.find(t => t.id === id);
+      if (thread) {
+        thread.upvotes += 1;
+        renderForumThreads();
+      }
+    }
+
+    function handlePostThread(e) {
+      e.preventDefault();
+      const title = document.getElementById("newThreadTitle").value;
+      const course = document.getElementById("newThreadCourse").value;
+      const content = document.getElementById("newThreadContent").value;
+
+      StudentHubData.forumThreads.unshift({
+        id: "TH-" + Date.now(),
+        title,
+        author: AuthManager.getCurrentUser().name,
+        course,
+        tags: ["General", "Question"],
+        upvotes: 1,
+        replies: 0,
+        isSolved: false,
+        date: "Just now",
+        content
+      });
+
+      AppController.closeModal("askQuestionModal");
+      AppController.showToast("Thread published to community! 🚀");
+      renderForumThreads();
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      renderForumThreads();
+    });
+  </script>
+</body>
+</html>
