@@ -1,100 +1,225 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard | StudentHub</title>
 
-<meta charset="UTF-8">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-<title>Dashboard</title>
-
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/responsive.css">
 </head>
 
 <body>
 
-<header>
+    <!-- Dynamic Notification Toast Container -->
+    <div id="shToastContainer" class="sh-toast-container"></div>
 
-<h1>StudentHub Dashboard</h1>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="../index.html">
+                <i class="fas fa-graduation-cap"></i> StudentHub
+            </a>
 
-<nav>
+            <div class="d-flex align-items-center gap-2 ms-auto me-2 me-lg-0 order-lg-last">
+                <button type="button" class="theme-toggle-btn" aria-label="Toggle Light Dark Theme">
+                    <i class="fas fa-moon text-primary"></i>
+                    <span class="theme-text d-none d-sm-inline">Dark</span>
+                </button>
 
-<a href="../index.html">Home</a> |
+                <button class="sh-hamburger-btn" data-nav-target="shNavMenu" aria-label="Toggle Mobile Menu" aria-expanded="false">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
 
-<a href="attendance.html">Attendance</a> |
+            <div class="sh-nav-menu collapse navbar-collapse" id="shNavMenu">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="../index.html"><i class="fas fa-home me-1"></i> Home</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="student-dashboard.html"><i class="fas fa-chart-line me-1"></i> Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="attendance.html"><i class="fas fa-user-check me-1"></i> Attendance</a></li>
+                    <li class="nav-item"><a class="nav-link" href="assignments.html"><i class="fas fa-tasks me-1"></i> Assignments</a></li>
+                    <li class="nav-item"><a class="nav-link" href="material.html"><i class="fas fa-book me-1"></i> Materials</a></li>
+                    <li class="nav-item"><a class="nav-link" href="notices.html"><i class="fas fa-bell me-1"></i> Notices</a></li>
+                    <li class="nav-item"><a class="nav-link" href="faq.html"><i class="fas fa-question-circle me-1"></i> FAQ</a></li>
+                    <li class="nav-item"><a class="nav-link" href="profile.html"><i class="fas fa-user me-1"></i> Profile</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
 
-<a href="assignments.html">Assignments</a> |
+    <!-- Student Dashboard -->
+    <section class="py-5">
+        <div class="container">
+            <!-- Welcome Header Card -->
+            <div class="card p-4 mb-4 shadow-sm border-0 glass-card">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="fs-1 text-primary"><i class="fas fa-user-graduate"></i></div>
+                        <div>
+                            <h3 class="mb-1">Welcome back, Sneh Shah!</h3>
+                            <p class="text-muted mb-0"><i class="fas fa-id-badge me-1"></i> Roll No: 2026CS108 | Branch: Computer Engineering | Semester 6</p>
+                        </div>
+                    </div>
+                    <div>
+                        <button class="btn btn-outline-primary me-2" data-modal-target="quickNoticeModal">
+                            <i class="fas fa-bullhorn me-1"></i> Read Notices
+                        </button>
+                        <button class="btn btn-primary" data-trigger-toast data-toast-msg="Syncing latest grades & attendance..." data-toast-type="info">
+                            <i class="fas fa-sync-alt me-1"></i> Refresh Stats
+                        </button>
+                    </div>
+                </div>
+            </div>
 
-<a href="materials.html">Study Materials</a> |
+            <!-- Stats Grid -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-6 col-lg-3">
+                    <div class="card p-3 shadow-sm h-100 border-start border-4 border-primary">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <small class="text-muted text-uppercase fw-bold">Overall Attendance</small>
+                                <h2 class="fw-bold mb-0 text-primary">86.5%</h2>
+                            </div>
+                            <div class="fs-1 text-primary opacity-50"><i class="fas fa-chart-pie"></i></div>
+                        </div>
+                        <small class="text-success mt-2 d-block"><i class="fas fa-arrow-up me-1"></i> 2.1% from last month</small>
+                    </div>
+                </div>
 
-<a href="notices.html">Notices</a> |
+                <div class="col-md-6 col-lg-3">
+                    <div class="card p-3 shadow-sm h-100 border-start border-4 border-warning">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <small class="text-muted text-uppercase fw-bold">Pending Tasks</small>
+                                <h2 class="fw-bold mb-0 text-warning">2 Active</h2>
+                            </div>
+                            <div class="fs-1 text-warning opacity-50"><i class="fas fa-clock"></i></div>
+                        </div>
+                        <small class="text-muted mt-2 d-block">Due within 3 days</small>
+                    </div>
+                </div>
 
-<a href="profile.html">Profile</a> |
+                <div class="col-md-6 col-lg-3">
+                    <div class="card p-3 shadow-sm h-100 border-start border-4 border-success">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <small class="text-muted text-uppercase fw-bold">Current CGPA</small>
+                                <h2 class="fw-bold mb-0 text-success">9.12</h2>
+                            </div>
+                            <div class="fs-1 text-success opacity-50"><i class="fas fa-award"></i></div>
+                        </div>
+                        <small class="text-success mt-2 d-block"><i class="fas fa-star me-1"></i> Top 5% of Class</small>
+                    </div>
+                </div>
 
-<a href="contact.html">Contact</a>
+                <div class="col-md-6 col-lg-3">
+                    <div class="card p-3 shadow-sm h-100 border-start border-4 border-info">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <small class="text-muted text-uppercase fw-bold">Study Notes</small>
+                                <h2 class="fw-bold mb-0 text-info">14 Files</h2>
+                            </div>
+                            <div class="fs-1 text-info opacity-50"><i class="fas fa-folder-open"></i></div>
+                        </div>
+                        <small class="text-muted mt-2 d-block">Updated yesterday</small>
+                    </div>
+                </div>
+            </div>
 
-</nav>
+            <!-- Quick Action Links -->
+            <div class="row g-4">
+                <div class="col-lg-8">
+                    <div class="card p-4 shadow-sm mb-4">
+                        <h4 class="mb-3"><i class="fas fa-calendar-alt text-primary me-2"></i> Today's Schedule</h4>
+                        <div class="list-group list-group-flush">
+                            <div class="list-group-item d-flex justify-content-between align-items-center bg-transparent py-3">
+                                <div>
+                                    <h6 class="mb-1 fw-bold">Web Development Laboratory</h6>
+                                    <small class="text-muted"><i class="far fa-clock me-1"></i> 10:00 AM - 12:00 PM | Lab 3</small>
+                                </div>
+                                <span class="badge bg-success">Attended</span>
+                            </div>
+                            <div class="list-group-item d-flex justify-content-between align-items-center bg-transparent py-3">
+                                <div>
+                                    <h6 class="mb-1 fw-bold">Java Programming Lecture</h6>
+                                    <small class="text-muted"><i class="far fa-clock me-1"></i> 01:00 PM - 02:30 PM | Hall A</small>
+                                </div>
+                                <span class="badge bg-primary">Upcoming</span>
+                            </div>
+                            <div class="list-group-item d-flex justify-content-between align-items-center bg-transparent py-3">
+                                <div>
+                                    <h6 class="mb-1 fw-bold">Database Management Systems</h6>
+                                    <small class="text-muted"><i class="far fa-clock me-1"></i> 03:00 PM - 04:30 PM | Room 204</small>
+                                </div>
+                                <span class="badge bg-secondary">Scheduled</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-</header>
+                <div class="col-lg-4">
+                    <div class="card p-4 shadow-sm">
+                        <h4 class="mb-3"><i class="fas fa-bolt text-warning me-2"></i> Quick Actions</h4>
+                        <div class="d-grid gap-2">
+                            <a href="assignments.html" class="btn btn-outline-primary text-start">
+                                <i class="fas fa-upload me-2"></i> Submit Assignments
+                            </a>
+                            <a href="material.html" class="btn btn-outline-primary text-start">
+                                <i class="fas fa-file-download me-2"></i> Download Study Materials
+                            </a>
+                            <a href="notices.html" class="btn btn-outline-primary text-start">
+                                <i class="fas fa-bullhorn me-2"></i> View Campus Circulars
+                            </a>
+                            <a href="profile.html" class="btn btn-outline-secondary text-start">
+                                <i class="fas fa-user-cog me-2"></i> Update Student Profile
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-<hr>
+    <!-- Quick Notice Modal -->
+    <div class="sh-modal-overlay" id="quickNoticeModal">
+        <div class="sh-modal-container">
+            <div class="sh-modal-header">
+                <h4><i class="fas fa-bell text-primary me-2"></i> Campus Updates</h4>
+                <button class="sh-modal-close" aria-label="Close modal">&times;</button>
+            </div>
+            <div class="sh-modal-body">
+                <h6><i class="fas fa-bullhorn text-warning me-1"></i> Mid-Semester Exams Notice</h6>
+                <p>Exam Hall tickets will be downloadable from 25th August 2026 onwards. Ensure all pending library dues and assignment submissions are cleared.</p>
+            </div>
+            <div class="sh-modal-footer">
+                <a href="notices.html" class="btn btn-primary btn-sm">Full Notice Board</a>
+                <button class="btn btn-secondary btn-sm sh-modal-close">Close</button>
+            </div>
+        </div>
+    </div>
 
-<main>
+    <!-- Footer -->
+    <footer class="pt-4 pb-3">
+        <div class="container text-center">
+            <p class="mb-0">© 2026 StudentHub | Student Dashboard</p>
+        </div>
+    </footer>
 
-<h2>
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-Welcome Student
-
-</h2>
-
-<h3>
-
-Dashboard Overview
-
-</h3>
-
-<ul>
-
-<li>Total Attendance : 85%</li>
-
-<li>Pending Assignments : 3</li>
-
-<li>Available Study Materials : 15</li>
-
-<li>Latest Notices : 5</li>
-
-<li>Upcoming Events : 2</li>
-
-</ul>
-
-<hr>
-
-<h3>
-
-Quick Links
-
-</h3>
-
-<ul>
-
-<li><a href="attendance.html">Attendance</a></li>
-
-<li><a href="assignments.html">Assignments</a></li>
-
-<li><a href="materials.html">Study Materials</a></li>
-
-<li><a href="profile.html">Profile</a></li>
-
-</ul>
-
-</main>
-
-<hr>
-
-<footer>
-
-© 2026 StudentHub
-
-</footer>
-
+    <!-- Custom Main JS Engine -->
+    <script src="../js/main.js"></script>
 </body>
 
 </html>

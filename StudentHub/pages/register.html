@@ -1,118 +1,177 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - StudentHub</title>
+    <title>StudentHub | Register Account</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/responsive.css">
 </head>
 
 <body>
 
-<header>
+    <!-- Dynamic Notification Toast Container -->
+    <div id="shToastContainer" class="sh-toast-container"></div>
 
-<h1>StudentHub</h1>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="../index.html">
+                <i class="fas fa-graduation-cap"></i> StudentHub
+            </a>
 
-<nav>
+            <div class="d-flex align-items-center gap-2 ms-auto me-2 me-lg-0 order-lg-last">
+                <button type="button" class="theme-toggle-btn" aria-label="Toggle Light Dark Theme">
+                    <i class="fas fa-moon text-primary"></i>
+                    <span class="theme-text d-none d-sm-inline">Dark</span>
+                </button>
 
-<a href="../index.html">Home</a> |
-<a href="login.html">Login</a> |
-<a href="register.html">Register</a> |
-<a href="contact.html">Contact</a>
+                <button class="sh-hamburger-btn" data-nav-target="shNavMenu" aria-label="Toggle Mobile Menu" aria-expanded="false">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
 
-</nav>
+            <div class="sh-nav-menu collapse navbar-collapse" id="shNavMenu">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="../index.html"><i class="fas fa-home me-1"></i> Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="login.html"><i class="fas fa-sign-in-alt me-1"></i> Login</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="register.html"><i class="fas fa-user-plus me-1"></i> Register</a></li>
+                    <li class="nav-item"><a class="nav-link" href="faq.html"><i class="fas fa-question-circle me-1"></i> FAQ</a></li>
+                    <li class="nav-item"><a class="nav-link" href="contact.html"><i class="fas fa-envelope me-1"></i> Contact</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
 
-</header>
+    <!-- Register Section -->
+    <section class="py-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card p-4 shadow-sm border-0 glass-card">
+                        <div class="card-body">
+                            <div class="text-center mb-4">
+                                <div class="fs-1 text-primary mb-2"><i class="fas fa-user-plus"></i></div>
+                                <h2>Student Account Registration</h2>
+                                <p class="text-muted small">Fill in your details to create your official StudentHub profile</p>
+                            </div>
 
-<hr>
+                            <form onsubmit="event.preventDefault(); StudentHub.showNotification('Registration successful! Redirecting to login...', 'success'); setTimeout(() => window.location.href='login.html', 1800);">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">First Name</label>
+                                        <input type="text" class="form-control" placeholder="John" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">Last Name</label>
+                                        <input type="text" class="form-control" placeholder="Doe" required>
+                                    </div>
 
-<main>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">Enrollment Number</label>
+                                        <input type="text" class="form-control" placeholder="2026CS101" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">Branch / Department</label>
+                                        <select class="form-select" required>
+                                            <option value="">Choose Department...</option>
+                                            <option>Computer Science & Engineering</option>
+                                            <option>Information Technology</option>
+                                            <option>Electronics & Communication</option>
+                                            <option>Mechanical Engineering</option>
+                                        </select>
+                                    </div>
 
-<h2>Create New Account</h2>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">Email Address</label>
+                                        <input type="email" class="form-control" placeholder="student@university.edu" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">Phone Number</label>
+                                        <input type="tel" class="form-control" placeholder="+91 9876543210" required>
+                                    </div>
 
-<form action="login.html">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">Password</label>
+                                        <input type="password" class="form-control" placeholder="Minimum 8 characters" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">Confirm Password</label>
+                                        <input type="password" class="form-control" placeholder="Repeat password" required>
+                                    </div>
 
-<label>Full Name</label><br>
-<input type="text" required>
+                                    <div class="col-12">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="termsCheck" required>
+                                            <label class="form-check-label text-muted small" for="termsCheck">
+                                                I agree to the <a href="#" data-modal-target="termsModal">Terms of Service & Privacy Policy</a> of StudentHub.
+                                            </label>
+                                        </div>
+                                    </div>
 
-<br><br>
+                                    <div class="col-12">
+                                        <button type="submit" class="btn btn-primary w-100 btn-lg mt-2">
+                                            <i class="fas fa-check-circle me-2"></i> Register Account
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
 
-<label>Enrollment Number</label><br>
-<input type="text" required>
+                            <div class="text-center pt-4 mt-3 border-top border-secondary border-opacity-25">
+                                <span class="text-muted small">Already registered on StudentHub?</span>
+                                <a href="login.html" class="small fw-bold text-primary ms-1">Log In Here</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-<br><br>
+    <!-- Terms Modal -->
+    <div class="sh-modal-overlay" id="termsModal">
+        <div class="sh-modal-container">
+            <div class="sh-modal-header">
+                <h4><i class="fas fa-shield-alt text-primary me-2"></i> Terms of Service</h4>
+                <button class="sh-modal-close" aria-label="Close modal">&times;</button>
+            </div>
+            <div class="sh-modal-body">
+                <p>StudentHub is designed exclusively for verified students and academic faculty. Users must provide accurate enrollment numbers and maintain academic integrity when submitting coursework.</p>
+                <ul>
+                    <li>All assignment submissions are checked for plagiarism.</li>
+                    <li>Accounts sharing unauthorized credentials will be suspended.</li>
+                    <li>Attendance data is updated daily by respective subject professors.</li>
+                </ul>
+            </div>
+            <div class="sh-modal-footer">
+                <button class="btn btn-primary btn-sm sh-modal-close">I Understand</button>
+            </div>
+        </div>
+    </div>
 
-<label>Email</label><br>
-<input type="email" required>
+    <!-- Footer -->
+    <footer class="pt-4 pb-3">
+        <div class="container text-center">
+            <p class="mb-0">© 2026 StudentHub | Account Registration</p>
+        </div>
+    </footer>
 
-<br><br>
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-<label>Password</label><br>
-<input type="password" required>
-
-<br><br>
-
-<label>Confirm Password</label><br>
-<input type="password" required>
-
-<br><br>
-
-<label>Department</label><br>
-
-<select>
-
-<option>Computer Engineering</option>
-
-<option>Mechanical Engineering</option>
-
-<option>Civil Engineering</option>
-
-<option>Electrical Engineering</option>
-
-</select>
-
-<br><br>
-
-<button type="submit">
-
-Register
-
-</button>
-
-<button type="reset">
-
-Reset
-
-</button>
-
-</form>
-
-<p>
-
-Already Registered?
-
-<a href="login.html">
-
-Login Here
-
-</a>
-
-</p>
-
-</main>
-
-<hr>
-
-<footer>
-
-<p>
-
-© 2026 StudentHub
-
-</p>
-
-</footer>
-
+    <!-- Custom Main JS Engine -->
+    <script src="../js/main.js"></script>
 </body>
 
 </html>

@@ -1,96 +1,520 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StudentHub</title>
+    <title>StudentHub - Modern Student Management Portal</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
 </head>
 
 <body>
 
-    <header>
+    <!-- Dynamic Notification Toast Container -->
+    <div id="shToastContainer" class="sh-toast-container"></div>
 
-        <h1>StudentHub</h1>
+    <!-- Top Announcement Banner -->
+    <div class="bg-primary text-white py-2 px-3 text-center d-flex justify-content-between align-items-center" id="topBanner">
+        <div class="container d-flex justify-content-center align-items-center gap-2">
+            <span class="badge bg-warning text-dark"><i class="fas fa-bullhorn me-1"></i> Announcement</span>
+            <small class="fw-semibold">Mid-semester examinations schedule & assignment portals are now live!</small>
+            <button class="btn btn-sm btn-outline-light ms-3 py-0 px-2" data-modal-target="announcementModal">Read More</button>
+        </div>
+        <button type="button" class="btn-close btn-close-white btn-sm" onclick="document.getElementById('topBanner').remove()" aria-label="Close Banner"></button>
+    </div>
 
-        <nav>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="fas fa-graduation-cap"></i> StudentHub
+            </a>
 
-            <a href="index.html">Home</a> |
-            <a href="pages/login.html">Login</a> |
-            <a href="pages/register.html">Register</a> |
-            <a href="pages/contact.html">Contact</a>
+            <!-- Theme Switcher & Hamburger Toggle Group for Mobile -->
+            <div class="d-flex align-items-center gap-2 ms-auto me-2 me-lg-0 order-lg-last">
+                <button type="button" class="theme-toggle-btn" aria-label="Toggle Light Dark Theme">
+                    <i class="fas fa-moon text-primary"></i>
+                    <span class="theme-text d-none d-sm-inline">Dark</span>
+                </button>
 
-        </nav>
+                <!-- Custom Animated Hamburger Menu Button -->
+                <button class="sh-hamburger-btn" data-nav-target="shNavMenu" aria-label="Toggle Mobile Menu" aria-expanded="false">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
 
-    </header>
+            <!-- Navigation Links Drawer -->
+            <div class="sh-nav-menu collapse navbar-collapse" id="shNavMenu">
+                <ul class="navbar-nav ms-auto align-items-lg-center">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="index.html">
+                            <i class="fas fa-home me-1"></i> Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="pages/student-dashboard.html">
+                            <i class="fas fa-chart-line me-1"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="pages/assignments.html">
+                            <i class="fas fa-tasks me-1"></i> Assignments
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="pages/notices.html">
+                            <i class="fas fa-bell me-1"></i> Notices
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="pages/faq.html">
+                            <i class="fas fa-question-circle me-1"></i> FAQ
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="pages/contact.html">
+                            <i class="fas fa-envelope me-1"></i> Contact
+                        </a>
+                    </li>
+                    <li class="nav-item ms-lg-2 mt-2 mt-lg-0">
+                        <a class="btn btn-outline-primary btn-sm px-3" href="pages/login.html">
+                            <i class="fas fa-sign-in-alt me-1"></i> Login
+                        </a>
+                    </li>
+                    <li class="nav-item ms-lg-1 mt-2 mt-lg-0">
+                        <a class="btn btn-primary btn-sm px-3" href="pages/register.html">
+                            <i class="fas fa-user-plus me-1"></i> Register
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
 
-    <hr>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6 mb-4 mb-lg-0">
+                    <span class="badge bg-primary text-white mb-3 px-3 py-2 rounded-pill">
+                        <i class="fas fa-sparkles me-1"></i> Welcome to Next-Gen StudentHub
+                    </span>
+                    <h1>Empowering Academic Excellence</h1>
+                    <p>
+                        StudentHub is a unified academic management portal designed for students and faculty. Easily track attendance, submit assignments, access course materials, and stay updated with live announcements.
+                    </p>
+                    <div class="d-flex flex-wrap gap-3">
+                        <a href="pages/register.html" class="btn btn-primary btn-lg">
+                            <i class="fas fa-rocket me-2"></i> Get Started
+                        </a>
+                        <button class="btn btn-outline-primary btn-lg" data-modal-target="demoVideoModal">
+                            <i class="fas fa-play-circle me-2"></i> Watch Quick Demo
+                        </button>
+                    </div>
 
-    <main>
+                    <!-- Dynamic Notification Trigger Demo Controls -->
+                    <div class="mt-4 pt-3 border-top border-secondary border-opacity-25">
+                        <small class="text-muted d-block mb-2 fw-semibold"><i class="fas fa-bell me-1"></i> Test Dynamic Notification Toasts:</small>
+                        <div class="d-flex flex-wrap gap-2">
+                            <button class="btn btn-sm btn-outline-success" data-trigger-toast data-toast-msg="Assignment successfully submitted to portal!" data-toast-type="success">
+                                <i class="fas fa-check me-1"></i> Success
+                            </button>
+                            <button class="btn btn-sm btn-outline-info" data-trigger-toast data-toast-msg="New study notes uploaded in Computer Science." data-toast-type="info">
+                                <i class="fas fa-info me-1"></i> Info
+                            </button>
+                            <button class="btn btn-sm btn-outline-warning text-dark" data-trigger-toast data-toast-msg="Reminder: Assignment deadline in 2 hours!" data-toast-type="warning">
+                                <i class="fas fa-exclamation-triangle me-1"></i> Warning
+                            </button>
+                        </div>
+                    </div>
+                </div>
 
-        <section>
+                <div class="col-lg-6 text-center">
+                    <img src="images/student.png" class="img-fluid" alt="Student Management Illustration">
+                </div>
+            </div>
+        </div>
+    </section>
 
-            <h2>Welcome to StudentHub</h2>
+    <!-- Dynamic Image & Content Slider Section -->
+    <section class="sh-slider-section bg-surface">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2>Campus Highlights & Featured Events</h2>
+                <p class="text-muted">Swipe through our interactive carousel to discover upcoming workshops, sports events, and placement drives.</p>
+            </div>
 
-            <p>
-                StudentHub is an online portal where students can manage
-                attendance, assignments, study materials, notices and profile.
-            </p>
+            <div class="sh-slider" data-autoplay="4000">
+                <button class="sh-slider-btn sh-slider-prev" aria-label="Previous Slide">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button class="sh-slider-btn sh-slider-next" aria-label="Next Slide">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
 
-            <button>Get Started</button>
+                <div class="sh-slider-track-wrapper">
+                    <div class="sh-slider-track">
+                        <!-- Slide 1 -->
+                        <div class="sh-slide active">
+                            <div class="sh-slide-inner">
+                                <div class="sh-slide-img-box">
+                                    <img src="images/update1.jpg" alt="Web Development Workshop">
+                                </div>
+                                <div class="sh-slide-content">
+                                    <span class="sh-slide-badge"><i class="fas fa-code me-1"></i> Technical Workshop</span>
+                                    <h3>Full-Stack Web Development Bootcamp</h3>
+                                    <p>Join our hands-on 3-day workshop on HTML5, CSS3, JavaScript, and Bootstrap 5. Build real-world projects with industry experts.</p>
+                                    <button class="btn btn-primary" data-modal-target="workshopModal">
+                                        <i class="fas fa-calendar-plus me-1"></i> Register Now
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
 
-            <button>Login</button>
+                        <!-- Slide 2 -->
+                        <div class="sh-slide">
+                            <div class="sh-slide-inner">
+                                <div class="sh-slide-img-box">
+                                    <img src="images/update2.jpg" alt="Campus Placement Drive">
+                                </div>
+                                <div class="sh-slide-content">
+                                    <span class="sh-slide-badge"><i class="fas fa-briefcase me-1"></i> Career Opportunity</span>
+                                    <h3>Annual Campus Placement Drive 2026</h3>
+                                    <p>Over 40 top Tech & Management companies visiting campus. Final year students can submit their updated resumes on StudentHub.</p>
+                                    <a href="pages/student-dashboard.html" class="btn btn-primary">
+                                        <i class="fas fa-file-upload me-1"></i> Upload Resume
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
 
-        </section>
+                        <!-- Slide 3 -->
+                        <div class="sh-slide">
+                            <div class="sh-slide-inner">
+                                <div class="sh-slide-img-box">
+                                    <img src="images/update3.jpg" alt="Annual Sports Week">
+                                </div>
+                                <div class="sh-slide-content">
+                                    <span class="sh-slide-badge"><i class="fas fa-trophy me-1"></i> Campus Sports</span>
+                                    <h3>Inter-College Sports Tournament</h3>
+                                    <p>Participate in Football, Cricket, Badminton, and Chess. Register your teams before Friday to win exciting trophies and certificates!</p>
+                                    <button class="btn btn-primary" data-modal-target="sportsModal">
+                                        <i class="fas fa-running me-1"></i> Join Tournament
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-        <hr>
+                <div class="sh-slider-dots"></div>
+            </div>
+        </div>
+    </section>
 
-        <section>
+    <!-- Services Section -->
+    <section class="services py-5">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2>Student Academic Portal Services</h2>
+                <p>Everything you need to excel in your academic journey in one place.</p>
+            </div>
 
-            <h2>Latest Notices</h2>
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-3">
+                    <div class="card h-100 p-3">
+                        <div class="card-body text-center">
+                            <div class="fs-1 text-primary mb-3"><i class="fas fa-user-check"></i></div>
+                            <h4>Attendance</h4>
+                            <p>Track your daily subject-wise attendance percentages and monthly reports.</p>
+                            <a href="pages/attendance.html" class="btn btn-primary btn-sm w-100">
+                                View Records
+                            </a>
+                        </div>
+                    </div>
+                </div>
 
-            <ul>
+                <div class="col-md-6 col-lg-3">
+                    <div class="card h-100 p-3">
+                        <div class="card-body text-center">
+                            <div class="fs-1 text-primary mb-3"><i class="fas fa-file-signature"></i></div>
+                            <h4>Assignments</h4>
+                            <p>Submit coursework online, check deadlines, and receive grades instantly.</p>
+                            <a href="pages/assignments.html" class="btn btn-primary btn-sm w-100">
+                                Submit Assignment
+                            </a>
+                        </div>
+                    </div>
+                </div>
 
-                <li>Internal Exam starts from 25 May.</li>
+                <div class="col-md-6 col-lg-3">
+                    <div class="card h-100 p-3">
+                        <div class="card-body text-center">
+                            <div class="fs-1 text-primary mb-3"><i class="fas fa-book-reader"></i></div>
+                            <h4>Materials</h4>
+                            <p>Download lecture slides, syllabus PDFs, lab manuals, and previous papers.</p>
+                            <a href="pages/material.html" class="btn btn-primary btn-sm w-100">
+                                Download Notes
+                            </a>
+                        </div>
+                    </div>
+                </div>
 
-                <li>Workshop Registration is Open.</li>
+                <div class="col-md-6 col-lg-3">
+                    <div class="card h-100 p-3">
+                        <div class="card-body text-center">
+                            <div class="fs-1 text-primary mb-3"><i class="fas fa-bullhorn"></i></div>
+                            <h4>Notices</h4>
+                            <p>Stay informed with urgent announcements, exam schedules, and circulars.</p>
+                            <a href="pages/notices.html" class="btn btn-primary btn-sm w-100">
+                                Read Notices
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-                <li>Semester Fees submission deadline.</li>
+    <!-- Collapsible FAQ Accordion Section -->
+    <section class="faq-section py-5">
+        <div class="container">
+            <div class="faq-header-wrapper">
+                <h2>Frequently Asked Questions</h2>
+                <p>Have questions about StudentHub? Find answers to common queries about login, attendance calculation, assignment submission, and technical support.</p>
+            </div>
 
-            </ul>
+            <div class="faq-controls">
+                <div class="faq-search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="faqSearch" placeholder="Search FAQ questions..." aria-label="Search FAQs">
+                </div>
+                <div class="faq-btn-group">
+                    <button class="btn btn-outline-primary btn-sm" id="faqExpandAll">
+                        <i class="fas fa-expand-alt me-1"></i> Expand All
+                    </button>
+                    <button class="btn btn-outline-secondary btn-sm" id="faqCollapseAll">
+                        <i class="fas fa-compress-alt me-1"></i> Collapse All
+                    </button>
+                </div>
+            </div>
 
-        </section>
+            <div class="faq-accordion" data-single-open="true">
+                <!-- FAQ Item 1 -->
+                <div class="faq-item active">
+                    <div class="faq-header">
+                        <h5><i class="fas fa-question-circle text-primary me-2"></i> How do I reset my StudentHub portal password?</h5>
+                        <div class="faq-icon"><i class="fas fa-chevron-down"></i></div>
+                    </div>
+                    <div class="faq-content">
+                        <div class="faq-content-inner">
+                            If you forgot your password, go to the <a href="pages/login.html">Login Page</a> and click on "Forgot Password?". Enter your registered student email address to receive a secure password reset link. Alternatively, contact your department administrator.
+                        </div>
+                    </div>
+                </div>
 
-        <hr>
+                <!-- FAQ Item 2 -->
+                <div class="faq-item">
+                    <div class="faq-header">
+                        <h5><i class="fas fa-question-circle text-primary me-2"></i> How is attendance calculated on StudentHub?</h5>
+                        <div class="faq-icon"><i class="fas fa-chevron-down"></i></div>
+                    </div>
+                    <div class="faq-content">
+                        <div class="faq-content-inner">
+                            Attendance is calculated based on total lectures conducted versus total lectures attended. Minimum required attendance is 75%. You can view real-time percentage progress bars on your <a href="pages/attendance.html">Attendance Dashboard</a>.
+                        </div>
+                    </div>
+                </div>
 
-        <section>
+                <!-- FAQ Item 3 -->
+                <div class="faq-item">
+                    <div class="faq-header">
+                        <h5><i class="fas fa-question-circle text-primary me-2"></i> What file formats are supported for assignment submissions?</h5>
+                        <div class="faq-icon"><i class="fas fa-chevron-down"></i></div>
+                    </div>
+                    <div class="faq-content">
+                        <div class="faq-content-inner">
+                            StudentHub supports PDF, ZIP, DOCX, and common source code files (.java, .py, .cpp, .html). File sizes must not exceed 25MB per assignment submission.
+                        </div>
+                    </div>
+                </div>
 
-            <h2>Upcoming Events</h2>
+                <!-- FAQ Item 4 -->
+                <div class="faq-item">
+                    <div class="faq-header">
+                        <h5><i class="fas fa-question-circle text-primary me-2"></i> How do I enable Dark Mode on StudentHub?</h5>
+                        <div class="faq-icon"><i class="fas fa-chevron-down"></i></div>
+                    </div>
+                    <div class="faq-content">
+                        <div class="faq-content-inner">
+                            Click the <strong>Theme Toggle Button</strong> (Sun/Moon icon) located at the top right of the navigation menu. Your preferred theme preference will be remembered across all pages automatically.
+                        </div>
+                    </div>
+                </div>
 
-            <ul>
+                <!-- FAQ Item 5 -->
+                <div class="faq-item">
+                    <div class="faq-header">
+                        <h5><i class="fas fa-question-circle text-primary me-2"></i> Who should I contact for technical issues or portal errors?</h5>
+                        <div class="faq-icon"><i class="fas fa-chevron-down"></i></div>
+                    </div>
+                    <div class="faq-content">
+                        <div class="faq-content-inner">
+                            You can send a message directly via our <a href="pages/contact.html">Contact Page</a> or send an email to <code>studenthub@gmail.com</code> with details of the issue.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-                <li>Hackathon</li>
+    <!-- Footer -->
+    <footer class="pt-5 pb-4">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-lg-4 mb-3">
+                    <h4 class="mb-3"><i class="fas fa-graduation-cap text-primary me-2"></i>StudentHub</h4>
+                    <p>StudentHub is a modern web application designed for students and faculty to streamline attendance tracking, assignment submissions, course materials, and circulars.</p>
+                </div>
 
-                <li>Technical Seminar</li>
+                <div class="col-lg-4 mb-3">
+                    <h4 class="mb-3">Quick Navigation</h4>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="index.html"><i class="fas fa-chevron-right me-2 text-primary fs-6"></i>Home</a></li>
+                        <li class="mb-2"><a href="pages/faq.html"><i class="fas fa-chevron-right me-2 text-primary fs-6"></i>FAQ Help Center</a></li>
+                        <li class="mb-2"><a href="pages/login.html"><i class="fas fa-chevron-right me-2 text-primary fs-6"></i>Student Login</a></li>
+                        <li class="mb-2"><a href="pages/register.html"><i class="fas fa-chevron-right me-2 text-primary fs-6"></i>Register Account</a></li>
+                        <li class="mb-2"><a href="pages/contact.html"><i class="fas fa-chevron-right me-2 text-primary fs-6"></i>Help & Support</a></li>
+                    </ul>
+                </div>
 
-                <li>Sports Week</li>
-
-            </ul>
-
-        </section>
-
-    </main>
-
-    <hr>
-
-    <footer>
-
-        <p>
-            © 2026 StudentHub. All Rights Reserved.
-        </p>
-
+                <div class="col-lg-4 mb-3">
+                    <h4 class="mb-3">Contact Support</h4>
+                    <p><i class="fas fa-envelope text-primary me-2"></i> Email: studenthub@gmail.com</p>
+                    <p><i class="fas fa-phone text-primary me-2"></i> Phone: +91 9876543210</p>
+                    <p><i class="fas fa-map-marker-alt text-primary me-2"></i> Location: Ahmedabad, Gujarat, India</p>
+                </div>
+            </div>
+            <hr>
+            <div class="text-center pt-2">
+                <p class="mb-0">© 2026 StudentHub. All Rights Reserved. Built with HTML, CSS & JavaScript.</p>
+            </div>
+        </div>
     </footer>
 
+    <!-- MODAL POPUPS -->
+
+    <!-- Announcement Modal -->
+    <div class="sh-modal-overlay" id="announcementModal">
+        <div class="sh-modal-container">
+            <div class="sh-modal-header">
+                <h4><i class="fas fa-bullhorn text-warning me-2"></i> Important Academic Announcement</h4>
+                <button class="sh-modal-close" aria-label="Close modal">&times;</button>
+            </div>
+            <div class="sh-modal-body">
+                <p><strong>Mid-Semester Exam Timetable Released:</strong></p>
+                <p>The examination schedule for the odd semester 2026 has been published on the StudentHub notices section. Please check your dashboard for specific subject codes and seat numbers.</p>
+                <ul class="text-muted">
+                    <li>Exams start: September 1, 2026</li>
+                    <li>Hall Ticket Downloads: August 25, 2026 onwards</li>
+                    <li>Submission of pending assignments deadline: August 28, 2026</li>
+                </ul>
+            </div>
+            <div class="sh-modal-footer">
+                <a href="pages/notices.html" class="btn btn-primary btn-sm">View Notices</a>
+                <button class="btn btn-secondary btn-sm sh-modal-close">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Workshop Registration Modal -->
+    <div class="sh-modal-overlay" id="workshopModal">
+        <div class="sh-modal-container">
+            <div class="sh-modal-header">
+                <h4><i class="fas fa-code text-primary me-2"></i> Web Bootcamp Registration</h4>
+                <button class="sh-modal-close" aria-label="Close modal">&times;</button>
+            </div>
+            <div class="sh-modal-body">
+                <form id="workshopForm" onsubmit="event.preventDefault(); StudentHub.closeModal('workshopModal'); StudentHub.showNotification('Successfully registered for Web Bootcamp!', 'success', 4000);">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Full Name</label>
+                        <input type="text" class="form-control" placeholder="Enter your name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Student Enrollment ID</label>
+                        <input type="text" class="form-control" placeholder="e.g. 2026CS108" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Department</label>
+                        <select class="form-select">
+                            <option>Computer Science / IT</option>
+                            <option>Electronics</option>
+                            <option>Mechanical</option>
+                            <option>Civil</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Confirm Registration</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sports Modal -->
+    <div class="sh-modal-overlay" id="sportsModal">
+        <div class="sh-modal-container">
+            <div class="sh-modal-header">
+                <h4><i class="fas fa-trophy text-warning me-2"></i> Annual Sports Tournament</h4>
+                <button class="sh-modal-close" aria-label="Close modal">&times;</button>
+            </div>
+            <div class="sh-modal-body">
+                <p>Register your departmental team for Cricket, Football, Badminton, or Table Tennis!</p>
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-1"></i> Registration deadline is August 28, 2026. Trophies & cash prizes for winning teams.
+                </div>
+            </div>
+            <div class="sh-modal-footer">
+                <button class="btn btn-primary btn-sm" onclick="StudentHub.closeModal('sportsModal'); StudentHub.showNotification('Sports interest submitted to coordinator!', 'info');">Express Interest</button>
+                <button class="btn btn-secondary btn-sm sh-modal-close">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Demo Video Modal -->
+    <div class="sh-modal-overlay" id="demoVideoModal">
+        <div class="sh-modal-container">
+            <div class="sh-modal-header">
+                <h4><i class="fas fa-video text-primary me-2"></i> StudentHub Portal Walkthrough</h4>
+                <button class="sh-modal-close" aria-label="Close modal">&times;</button>
+            </div>
+            <div class="sh-modal-body text-center">
+                <div class="p-4 bg-surface rounded mb-3 border">
+                    <i class="fas fa-play-circle text-primary display-1 mb-3"></i>
+                    <p class="lead fw-bold mb-1">StudentHub Feature Overview</p>
+                    <p class="text-muted small">Learn how to check your attendance, upload assignments, and toggle theme settings in under 2 minutes.</p>
+                </div>
+            </div>
+            <div class="sh-modal-footer">
+                <button class="btn btn-secondary btn-sm sh-modal-close">Close Overview</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Custom Main JS Engine -->
+    <script src="js/main.js"></script>
 </body>
 
 </html>

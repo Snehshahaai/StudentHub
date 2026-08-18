@@ -1,74 +1,189 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Study Materials - StudentHub</title>
+    <title>Study Materials | StudentHub</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/responsive.css">
 </head>
 
 <body>
 
-    <header>
+    <!-- Dynamic Notification Toast Container -->
+    <div id="shToastContainer" class="sh-toast-container"></div>
 
-        <h1>StudentHub</h1>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="../index.html">
+                <i class="fas fa-graduation-cap"></i> StudentHub
+            </a>
 
-        <nav>
-            <a href="../index.html">Home</a> |
-            <a href="dashboard.html">Dashboard</a> |
-            <a href="attendance.html">Attendance</a> |
-            <a href="assignments.html">Assignments</a> |
-            <a href="notices.html">Notices</a> |
-            <a href="profile.html">Profile</a> |
-            <a href="contact.html">Contact</a>
-        </nav>
+            <div class="d-flex align-items-center gap-2 ms-auto me-2 me-lg-0 order-lg-last">
+                <button type="button" class="theme-toggle-btn" aria-label="Toggle Light Dark Theme">
+                    <i class="fas fa-moon text-primary"></i>
+                    <span class="theme-text d-none d-sm-inline">Dark</span>
+                </button>
 
-    </header>
+                <button class="sh-hamburger-btn" data-nav-target="shNavMenu" aria-label="Toggle Mobile Menu" aria-expanded="false">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
 
-    <hr>
+            <div class="sh-nav-menu collapse navbar-collapse" id="shNavMenu">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="../index.html"><i class="fas fa-home me-1"></i> Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="student-dashboard.html"><i class="fas fa-chart-line me-1"></i> Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="attendance.html"><i class="fas fa-user-check me-1"></i> Attendance</a></li>
+                    <li class="nav-item"><a class="nav-link" href="assignments.html"><i class="fas fa-tasks me-1"></i> Assignments</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="material.html"><i class="fas fa-book me-1"></i> Materials</a></li>
+                    <li class="nav-item"><a class="nav-link" href="notices.html"><i class="fas fa-bell me-1"></i> Notices</a></li>
+                    <li class="nav-item"><a class="nav-link" href="faq.html"><i class="fas fa-question-circle me-1"></i> FAQ</a></li>
+                    <li class="nav-item"><a class="nav-link" href="profile.html"><i class="fas fa-user me-1"></i> Profile</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
 
-    <main>
+    <!-- Study Materials Section -->
+    <section class="py-5">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+                <div>
+                    <h2><i class="fas fa-folder-open text-primary me-2"></i> Course Study Materials</h2>
+                    <p class="text-muted mb-0">Download subject PDFs, lecture notes, lab manuals, and previous year question papers.</p>
+                </div>
+                <button class="btn btn-outline-primary" data-modal-target="uploadNotesModal">
+                    <i class="fas fa-cloud-upload-alt me-1"></i> Upload Student Notes
+                </button>
+            </div>
 
-        <h2>Study Materials</h2>
+            <!-- Material Table -->
+            <div class="card shadow-sm">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-primary">
+                            <tr>
+                                <th>Resource Name</th>
+                                <th>Subject</th>
+                                <th>Type</th>
+                                <th>Size</th>
+                                <th>Uploaded Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="fw-bold"><i class="far fa-file-pdf text-danger me-2"></i> HTML5 & CSS3 Full Handbook</td>
+                                <td>Web Tech</td>
+                                <td><span class="badge bg-info text-dark">Lecture PDF</span></td>
+                                <td>4.2 MB</td>
+                                <td>12 Aug 2026</td>
+                                <td>
+                                    <button class="btn btn-primary btn-sm" data-trigger-toast data-toast-msg="Downloading HTML5_CSS3_Handbook.pdf..." data-toast-type="info">
+                                        <i class="fas fa-download me-1"></i> Download
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold"><i class="far fa-file-code text-primary me-2"></i> Java Multi-Threading Code Examples</td>
+                                <td>Java Programming</td>
+                                <td><span class="badge bg-warning text-dark">Source Code</span></td>
+                                <td>1.8 MB</td>
+                                <td>14 Aug 2026</td>
+                                <td>
+                                    <button class="btn btn-primary btn-sm" data-trigger-toast data-toast-msg="Downloading Java_MultiThreading.zip..." data-toast-type="info">
+                                        <i class="fas fa-download me-1"></i> Download
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold"><i class="far fa-file-pdf text-danger me-2"></i> Relational Algebra & SQL Cheatsheet</td>
+                                <td>DBMS</td>
+                                <td><span class="badge bg-info text-dark">Cheatsheet</span></td>
+                                <td>2.5 MB</td>
+                                <td>15 Aug 2026</td>
+                                <td>
+                                    <button class="btn btn-primary btn-sm" data-trigger-toast data-toast-msg="Downloading SQL_Cheatsheet.pdf..." data-toast-type="info">
+                                        <i class="fas fa-download me-1"></i> Download
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold"><i class="far fa-file-archive text-warning me-2"></i> Data Structures Lab Solutions</td>
+                                <td>DSA</td>
+                                <td><span class="badge bg-success">Lab Manual</span></td>
+                                <td>8.1 MB</td>
+                                <td>16 Aug 2026</td>
+                                <td>
+                                    <button class="btn btn-primary btn-sm" data-trigger-toast data-toast-msg="Downloading DSA_Lab_Solutions.zip..." data-toast-type="info">
+                                        <i class="fas fa-download me-1"></i> Download
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
 
-        <table border="1" cellpadding="10">
+    <!-- Upload Notes Modal -->
+    <div class="sh-modal-overlay" id="uploadNotesModal">
+        <div class="sh-modal-container">
+            <div class="sh-modal-header">
+                <h4><i class="fas fa-cloud-upload-alt text-primary me-2"></i> Share Study Material</h4>
+                <button class="sh-modal-close" aria-label="Close modal">&times;</button>
+            </div>
+            <div class="sh-modal-body">
+                <form onsubmit="event.preventDefault(); StudentHub.closeModal('uploadNotesModal'); StudentHub.showNotification('Study material uploaded for verification!', 'success');">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Material Title</label>
+                        <input type="text" class="form-control" placeholder="e.g. Unit 3 Revision Notes" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Subject</label>
+                        <select class="form-select" required>
+                            <option>Web Tech</option>
+                            <option>Java Programming</option>
+                            <option>DBMS</option>
+                            <option>DSA</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Attach PDF / ZIP File</label>
+                        <input type="file" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Upload File</button>
+                </form>
+            </div>
+        </div>
+    </div>
 
-            <tr>
-                <th>Subject</th>
-                <th>Material</th>
-                <th>Download</th>
-            </tr>
-
-            <tr>
-                <td>Web Technology</td>
-                <td>HTML Notes</td>
-                <td><a href="#">Download</a></td>
-            </tr>
-
-            <tr>
-                <td>Database</td>
-                <td>SQL Notes</td>
-                <td><a href="#">Download</a></td>
-            </tr>
-
-            <tr>
-                <td>Java</td>
-                <td>OOP Concepts</td>
-                <td><a href="#">Download</a></td>
-            </tr>
-
-        </table>
-
-    </main>
-
-    <hr>
-
-    <footer>
-
-        <p>© 2026 StudentHub. All Rights Reserved.</p>
-
+    <!-- Footer -->
+    <footer class="pt-4 pb-3">
+        <div class="container text-center">
+            <p class="mb-0">© 2026 StudentHub | Study Materials</p>
+        </div>
     </footer>
 
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Custom Main JS Engine -->
+    <script src="../js/main.js"></script>
 </body>
 
 </html>

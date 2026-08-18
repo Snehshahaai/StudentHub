@@ -1,78 +1,186 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Assignments - StudentHub</title>
+    <title>Assignments | StudentHub</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/responsive.css">
 </head>
 
 <body>
 
-    <header>
+    <!-- Dynamic Notification Toast Container -->
+    <div id="shToastContainer" class="sh-toast-container"></div>
 
-        <h1>StudentHub</h1>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="../index.html">
+                <i class="fas fa-graduation-cap"></i> StudentHub
+            </a>
 
-        <nav>
-            <a href="../index.html">Home</a> |
-            <a href="dashboard.html">Dashboard</a> |
-            <a href="attendance.html">Attendance</a> |
-            <a href="materials.html">Study Materials</a> |
-            <a href="notices.html">Notices</a> |
-            <a href="profile.html">Profile</a> |
-            <a href="contact.html">Contact</a>
-        </nav>
+            <div class="d-flex align-items-center gap-2 ms-auto me-2 me-lg-0 order-lg-last">
+                <button type="button" class="theme-toggle-btn" aria-label="Toggle Light Dark Theme">
+                    <i class="fas fa-moon text-primary"></i>
+                    <span class="theme-text d-none d-sm-inline">Dark</span>
+                </button>
 
-    </header>
+                <button class="sh-hamburger-btn" data-nav-target="shNavMenu" aria-label="Toggle Mobile Menu" aria-expanded="false">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
 
-    <hr>
+            <div class="sh-nav-menu collapse navbar-collapse" id="shNavMenu">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="../index.html"><i class="fas fa-home me-1"></i> Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="student-dashboard.html"><i class="fas fa-chart-line me-1"></i> Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="attendance.html"><i class="fas fa-user-check me-1"></i> Attendance</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="assignments.html"><i class="fas fa-tasks me-1"></i> Assignments</a></li>
+                    <li class="nav-item"><a class="nav-link" href="material.html"><i class="fas fa-book me-1"></i> Materials</a></li>
+                    <li class="nav-item"><a class="nav-link" href="notices.html"><i class="fas fa-bell me-1"></i> Notices</a></li>
+                    <li class="nav-item"><a class="nav-link" href="faq.html"><i class="fas fa-question-circle me-1"></i> FAQ</a></li>
+                    <li class="nav-item"><a class="nav-link" href="profile.html"><i class="fas fa-user me-1"></i> Profile</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
 
-    <main>
+    <!-- Assignments Section -->
+    <section class="py-5">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+                <div>
+                    <h2><i class="fas fa-tasks text-primary me-2"></i> Academic Assignments</h2>
+                    <p class="text-muted mb-0">Track upcoming deadlines, download problem statements, and upload completed work.</p>
+                </div>
+                <button class="btn btn-primary" data-modal-target="uploadAssignmentModal">
+                    <i class="fas fa-plus me-1"></i> Upload Solution
+                </button>
+            </div>
 
-        <h2>Assignments</h2>
+            <div class="card shadow-sm">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-primary">
+                            <tr>
+                                <th>Assignment Title</th>
+                                <th>Subject</th>
+                                <th>Deadline</th>
+                                <th>Status</th>
+                                <th>Problem Statement</th>
+                                <th>Submission</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="fw-bold">HTML & CSS Responsive Layout</td>
+                                <td>Web Development</td>
+                                <td><i class="far fa-calendar-alt me-1"></i> 25 August 2026</td>
+                                <td><span class="badge bg-warning text-dark"><i class="fas fa-clock me-1"></i> Pending</span></td>
+                                <td>
+                                    <button class="btn btn-outline-primary btn-sm" data-trigger-toast data-toast-msg="Downloading HTML_CSS_Assignment_1.pdf..." data-toast-type="info">
+                                        <i class="fas fa-download me-1"></i> Download
+                                    </button>
+                                </td>
+                                <td>
+                                    <button class="btn btn-success btn-sm" data-modal-target="uploadAssignmentModal">
+                                        <i class="fas fa-upload me-1"></i> Submit
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">Java OOP & Inheritance Systems</td>
+                                <td>Java Programming</td>
+                                <td><i class="far fa-calendar-alt me-1"></i> 28 August 2026</td>
+                                <td><span class="badge bg-warning text-dark"><i class="fas fa-clock me-1"></i> Pending</span></td>
+                                <td>
+                                    <button class="btn btn-outline-primary btn-sm" data-trigger-toast data-toast-msg="Downloading Java_OOP_Problem.pdf..." data-toast-type="info">
+                                        <i class="fas fa-download me-1"></i> Download
+                                    </button>
+                                </td>
+                                <td>
+                                    <button class="btn btn-success btn-sm" data-modal-target="uploadAssignmentModal">
+                                        <i class="fas fa-upload me-1"></i> Submit
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">Database Queries & Normalization</td>
+                                <td>DBMS</td>
+                                <td><i class="far fa-calendar-alt me-1"></i> 10 August 2026</td>
+                                <td><span class="badge bg-success"><i class="fas fa-check-circle me-1"></i> Completed</span></td>
+                                <td>
+                                    <button class="btn btn-outline-primary btn-sm" data-trigger-toast data-toast-msg="Downloading DBMS_Assignment.pdf..." data-toast-type="info">
+                                        <i class="fas fa-download me-1"></i> Download
+                                    </button>
+                                </td>
+                                <td>
+                                    <button class="btn btn-secondary btn-sm" disabled>
+                                        <i class="fas fa-check me-1"></i> Uploaded
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
 
-        <table border="1" cellpadding="10">
+    <!-- Upload Assignment Modal -->
+    <div class="sh-modal-overlay" id="uploadAssignmentModal">
+        <div class="sh-modal-container">
+            <div class="sh-modal-header">
+                <h4><i class="fas fa-file-upload text-primary me-2"></i> Submit Assignment</h4>
+                <button class="sh-modal-close" aria-label="Close modal">&times;</button>
+            </div>
+            <div class="sh-modal-body">
+                <form onsubmit="event.preventDefault(); StudentHub.closeModal('uploadAssignmentModal'); StudentHub.showNotification('Assignment file submitted successfully!', 'success');">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Select Assignment</label>
+                        <select class="form-select" required>
+                            <option>HTML & CSS Responsive Layout</option>
+                            <option>Java OOP & Inheritance Systems</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Attach Solution File (PDF or ZIP)</label>
+                        <input type="file" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Comments / Notes</label>
+                        <textarea class="form-control" rows="3" placeholder="Optional comments for faculty..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100"><i class="fas fa-paper-plane me-1"></i> Submit Work</button>
+                </form>
+            </div>
+        </div>
+    </div>
 
-            <tr>
-                <th>Subject</th>
-                <th>Assignment</th>
-                <th>Due Date</th>
-                <th>Status</th>
-            </tr>
-
-            <tr>
-                <td>Web Technology</td>
-                <td>HTML Forms</td>
-                <td>15 Aug 2026</td>
-                <td>Pending</td>
-            </tr>
-
-            <tr>
-                <td>Java</td>
-                <td>Collections Framework</td>
-                <td>18 Aug 2026</td>
-                <td>Submitted</td>
-            </tr>
-
-            <tr>
-                <td>Database</td>
-                <td>Normalization</td>
-                <td>20 Aug 2026</td>
-                <td>Pending</td>
-            </tr>
-
-        </table>
-
-    </main>
-
-    <hr>
-
-    <footer>
-
-        <p>© 2026 StudentHub. All Rights Reserved.</p>
-
+    <!-- Footer -->
+    <footer class="pt-4 pb-3">
+        <div class="container text-center">
+            <p class="mb-0">© 2026 StudentHub | Assignments Portal</p>
+        </div>
     </footer>
 
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Custom Main JS Engine -->
+    <script src="../js/main.js"></script>
 </body>
 
 </html>

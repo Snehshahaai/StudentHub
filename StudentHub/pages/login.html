@@ -1,101 +1,139 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - StudentHub</title>
+    <title>StudentHub | Login</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/responsive.css">
 </head>
 
 <body>
 
-    <header>
+    <!-- Dynamic Notification Toast Container -->
+    <div id="shToastContainer" class="sh-toast-container"></div>
 
-        <h1>StudentHub</h1>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="../index.html">
+                <i class="fas fa-graduation-cap"></i> StudentHub
+            </a>
 
-        <nav>
-            <a href="../index.html">Home</a> |
-            <a href="login.html">Login</a> |
-            <a href="register.html">Register</a> |
-            <a href="contact.html">Contact</a>
-        </nav>
-
-    </header>
-
-    <hr>
-
-    <main>
-
-        <section>
-
-            <h2>Login</h2>
-
-            <p>
-                Enter your login credentials to access your StudentHub account.
-            </p>
-
-            <form action="dashboard.html" method="post">
-
-                <label for="email">Email Address</label>
-                <br>
-                <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    placeholder="Enter your email"
-                    required>
-
-                <br><br>
-
-                <label for="password">Password</label>
-                <br>
-                <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    placeholder="Enter your password"
-                    required>
-
-                <br><br>
-
-                <input type="checkbox" id="remember">
-                <label for="remember">Remember Me</label>
-
-                <br><br>
-
-                <button type="submit">
-                    Login
+            <div class="d-flex align-items-center gap-2 ms-auto me-2 me-lg-0 order-lg-last">
+                <button type="button" class="theme-toggle-btn" aria-label="Toggle Light Dark Theme">
+                    <i class="fas fa-moon text-primary"></i>
+                    <span class="theme-text d-none d-sm-inline">Dark</span>
                 </button>
 
-                <button type="reset">
-                    Reset
+                <button class="sh-hamburger-btn" data-nav-target="shNavMenu" aria-label="Toggle Mobile Menu" aria-expanded="false">
+                    <span></span>
+                    <span></span>
+                    <span></span>
                 </button>
+            </div>
 
-            </form>
+            <div class="sh-nav-menu collapse navbar-collapse" id="shNavMenu">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="../index.html"><i class="fas fa-home me-1"></i> Home</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="login.html"><i class="fas fa-sign-in-alt me-1"></i> Login</a></li>
+                    <li class="nav-item"><a class="nav-link" href="register.html"><i class="fas fa-user-plus me-1"></i> Register</a></li>
+                    <li class="nav-item"><a class="nav-link" href="faq.html"><i class="fas fa-question-circle me-1"></i> FAQ</a></li>
+                    <li class="nav-item"><a class="nav-link" href="contact.html"><i class="fas fa-envelope me-1"></i> Contact</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
 
-            <br>
+    <!-- Login Section -->
+    <section class="py-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-6 col-lg-5">
+                    <div class="card p-4 shadow-sm border-0 glass-card">
+                        <div class="card-body">
+                            <div class="text-center mb-4">
+                                <div class="fs-1 text-primary mb-2"><i class="fas fa-user-circle"></i></div>
+                                <h3>Student Portal Login</h3>
+                                <p class="text-muted small">Enter your credentials to access your student dashboard</p>
+                            </div>
 
-            <a href="#">Forgot Password?</a>
+                            <form onsubmit="event.preventDefault(); StudentHub.showNotification('Welcome back! Logging in...', 'success'); setTimeout(() => window.location.href='student-dashboard.html', 1500);">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold"><i class="fas fa-envelope me-1 text-primary"></i> Email Address</label>
+                                    <input type="email" class="form-control" placeholder="student@university.edu" required>
+                                </div>
 
-            <p>
-                Don't have an account?
-                <a href="register.html">Register Here</a>
-            </p>
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <label class="form-label fw-bold mb-0"><i class="fas fa-lock me-1 text-primary"></i> Password</label>
+                                        <a href="#" class="small text-primary" data-modal-target="forgotPasswordModal">Forgot Password?</a>
+                                    </div>
+                                    <input type="password" class="form-control" placeholder="••••••••" required>
+                                </div>
 
-        </section>
+                                <div class="form-check mb-4">
+                                    <input type="checkbox" class="form-check-input" id="rememberMe">
+                                    <label class="form-check-label text-muted" for="rememberMe">Remember login state</label>
+                                </div>
 
-    </main>
+                                <button type="submit" class="btn btn-primary w-100 btn-lg mb-3">
+                                    <i class="fas fa-sign-in-alt me-2"></i> Log In
+                                </button>
+                            </form>
 
-    <hr>
+                            <div class="text-center pt-3 border-top border-secondary border-opacity-25">
+                                <span class="text-muted small">Don't have a StudentHub account?</span>
+                                <a href="register.html" class="small fw-bold text-primary ms-1">Register Now</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-    <footer>
+    <!-- Forgot Password Modal -->
+    <div class="sh-modal-overlay" id="forgotPasswordModal">
+        <div class="sh-modal-container">
+            <div class="sh-modal-header">
+                <h4><i class="fas fa-key text-warning me-2"></i> Password Reset</h4>
+                <button class="sh-modal-close" aria-label="Close modal">&times;</button>
+            </div>
+            <div class="sh-modal-body">
+                <p>Enter your registered student email address below and we will send a 6-digit verification pin to reset your password.</p>
+                <form onsubmit="event.preventDefault(); StudentHub.closeModal('forgotPasswordModal'); StudentHub.showNotification('Password reset link sent to your email!', 'info');">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Student Email</label>
+                        <input type="email" class="form-control" placeholder="e.g. student@university.edu" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Send Reset Code</button>
+                </form>
+            </div>
+        </div>
+    </div>
 
-        <p>
-            © 2026 StudentHub. All Rights Reserved.
-        </p>
-
+    <!-- Footer -->
+    <footer class="pt-4 pb-3">
+        <div class="container text-center">
+            <p class="mb-0">© 2026 StudentHub | Portal Login</p>
+        </div>
     </footer>
 
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Custom Main JS Engine -->
+    <script src="../js/main.js"></script>
 </body>
 
 </html>
