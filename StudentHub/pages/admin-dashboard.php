@@ -1,7 +1,26 @@
 <?php
 // Faculty and admins only: students are sent to their own dashboard (php/guard.php)
 require __DIR__ . '/../php/guard.php';
+require __DIR__ . '/../php/students.php';
+require __DIR__ . '/../php/views/admin-layout.php';
 $user = require_role(['faculty', 'admin']);
+$isAdmin = $user['role'] === 'admin';
+
+try {
+    // Five newest registrations for the "Recent Student Enrollments" table
+    $recent = db_all(
+        'SELECT st.student_id, st.enrollment_no, st.full_name, st.email, st.status, d.short_name AS department
+           FROM students st
+           JOIN courses c     ON c.course_id = st.course_id
+           JOIN departments d ON d.department_id = c.department_id
+          ORDER BY st.created_at DESC, st.student_id DESC
+          LIMIT 5'
+    );
+} catch (mysqli_sql_exception $e) {
+    error_log('[StudentHub admin dashboard] ' . $e->getMessage());
+    $recent = [];
+}
+$flash = take_flash();
 ?>
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
@@ -56,6 +75,7 @@ $user = require_role(['faculty', 'admin']);
             <div class="sh-nav-menu collapse navbar-collapse" id="shNavMenu">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item"><a class="nav-link active" href="admin-dashboard.php"><i class="fas fa-tachometer-alt me-1"></i> Admin Console</a></li>
+                    <li class="nav-item"><a class="nav-link" href="admin-students.php"><i class="fas fa-users me-1"></i> Students</a></li>
                     <li class="nav-item"><a class="nav-link" href="../index.html"><i class="fas fa-globe me-1"></i> Portal Main Site</a></li>
                 </ul>
             </div>
@@ -85,6 +105,13 @@ $user = require_role(['faculty', 'admin']);
                 </div>
             </div>
 
+            <?php if ($flash): ?>
+                <div class="alert alert-<?= $flash['type'] === 'success' ? 'success' : 'danger' ?> alert-dismissible fade show" role="status" aria-live="polite">
+                    <?= e($flash['message']) ?>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            <?php endif; ?>
+
             <!-- Admin Quick Stats -->
             <div class="row g-4 mb-4">
                 <div class="col-md-3">
@@ -113,13 +140,11 @@ $user = require_role(['faculty', 'admin']);
                 </div>
             </div>
 
-            <!-- Student Management Table -->
+            <!-- Student Management Table (latest registrations from MySQL) -->
             <div class="card shadow-sm">
-                <div class="card-header bg-surface py-3 d-flex justify-content-between align-items-center">
+                <div class="card-header bg-surface py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
                     <h5 class="mb-0 fw-bold"><i class="fas fa-users text-primary me-2"></i> Recent Student Enrollments</h5>
-                    <button class="btn btn-sm btn-outline-success" data-trigger-toast data-toast-msg="Approved 4 pending student accounts!" data-toast-type="success">
-                        <i class="fas fa-user-check me-1"></i> Batch Approve
-                    </button>
+                    <a href="admin-students.php" class="btn btn-sm btn-outline-primary"><i class="fas fa-list me-1"></i> Manage All Students</a>
                 </div>
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
@@ -134,36 +159,33 @@ $user = require_role(['faculty', 'admin']);
                             </tr>
                         </thead>
                         <tbody>
+                        <?php if (!$recent): ?>
+                            <tr><td colspan="6" class="text-center text-muted py-4">No students yet.</td></tr>
+                        <?php endif; ?>
+                        <?php foreach ($recent as $s): ?>
                             <tr>
-                                <td>2026CS108</td>
-                                <td class="fw-bold">Sneh Shah</td>
-                                <td>Computer Engg</td>
-                                <td>snehshah@university.edu</td>
-                                <td><span class="badge bg-success">Active</span></td>
-                                <td>
-                                    <button class="btn btn-sm btn-outline-primary" data-trigger-toast data-toast-msg="Editing profile for 2026CS108" data-toast-type="info"><i class="fas fa-edit"></i></button>
+                                <td><?= e($s['enrollment_no']) ?></td>
+                                <td class="fw-bold"><a href="admin-student-view.php?id=<?= (int) $s['student_id'] ?>"><?= e($s['full_name']) ?></a></td>
+                                <td><?= e($s['department']) ?></td>
+                                <td><?= e($s['email']) ?></td>
+                                <td><?= status_badge($s['status']) ?></td>
+                                <td class="text-nowrap">
+                                    <?php if ($isAdmin && $s['status'] === 'pending'): ?>
+                                        <form method="post" action="admin-students.php" class="d-inline">
+                                            <?= csrf_field() ?>
+                                            <input type="hidden" name="action" value="approve">
+                                            <input type="hidden" name="student_id" value="<?= (int) $s['student_id'] ?>">
+                                            <input type="hidden" name="back" value="admin-dashboard.php">
+                                            <button type="submit" class="btn btn-sm btn-success"><i class="fas fa-check"></i> Approve</button>
+                                        </form>
+                                    <?php endif; ?>
+                                    <a href="admin-student-view.php?id=<?= (int) $s['student_id'] ?>" class="btn btn-sm btn-outline-primary" title="View" aria-label="View <?= e($s['full_name']) ?>"><i class="fas fa-eye"></i></a>
+                                    <?php if ($isAdmin): ?>
+                                        <a href="admin-student-form.php?id=<?= (int) $s['student_id'] ?>" class="btn btn-sm btn-outline-primary" title="Edit" aria-label="Edit <?= e($s['full_name']) ?>"><i class="fas fa-edit"></i></a>
+                                    <?php endif; ?>
                                 </td>
                             </tr>
-                            <tr>
-                                <td>2026CS109</td>
-                                <td class="fw-bold">Rohan Verma</td>
-                                <td>Computer Engg</td>
-                                <td>rohan.v@university.edu</td>
-                                <td><span class="badge bg-warning text-dark">Pending</span></td>
-                                <td>
-                                    <button class="btn btn-sm btn-success" data-trigger-toast data-toast-msg="Approved Rohan Verma!" data-toast-type="success"><i class="fas fa-check"></i> Approve</button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>2026IT204</td>
-                                <td class="fw-bold">Priya Patel</td>
-                                <td>Information Tech</td>
-                                <td>priya.p@university.edu</td>
-                                <td><span class="badge bg-success">Active</span></td>
-                                <td>
-                                    <button class="btn btn-sm btn-outline-primary" data-trigger-toast data-toast-msg="Editing profile for 2026IT204" data-toast-type="info"><i class="fas fa-edit"></i></button>
-                                </td>
-                            </tr>
+                        <?php endforeach; ?>
                         </tbody>
                     </table>
                 </div>

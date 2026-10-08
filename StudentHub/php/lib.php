@@ -172,6 +172,49 @@ function username_error(string $username): string
     return '';
 }
 
+/** Error message for an invalid full name, or '' when the format is fine. */
+function name_error(string $name): string
+{
+    if ($name === '') {
+        return 'Full name is required.';
+    }
+    if (!preg_match('/^(?=.{3,50}$)[A-Za-z]+(?: [A-Za-z]+)*$/', $name)) {
+        return 'Name must be 3-50 letters and spaces only.';
+    }
+    return '';
+}
+
+/** Error message for an invalid Indian mobile number, or '' when the format is fine. */
+function mobile_error(string $mobile): string
+{
+    if ($mobile === '') {
+        return 'Mobile number is required.';
+    }
+    if (!preg_match('/^[6-9]\d{9}$/', $mobile)) {
+        return 'Enter a valid 10-digit mobile number starting with 6-9.';
+    }
+    return '';
+}
+
+/** Error message for a weak password, or '' when it is strong enough. */
+function password_error(string $password): string
+{
+    if ($password === '') {
+        return 'Password is required.';
+    }
+    // bcrypt only uses the first 72 bytes, so longer passwords are refused
+    if (strlen($password) > 72 || !preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9])\S{8,}$/', $password)) {
+        return 'Password needs 8-72 characters, an uppercase, a lowercase, a number and a special character (no spaces).';
+    }
+    return '';
+}
+
+/** Escape % and _ so user text is matched literally inside LIKE '%...%'. */
+function like_escape(string $value): string
+{
+    return addcslashes($value, '%_\\');
+}
+
 /** Error message for an invalid email, or '' when the format is fine. */
 function email_error(string $email): string
 {

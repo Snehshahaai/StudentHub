@@ -1,0 +1,2 @@
+# Page templates are included by pages/, never opened directly (Apache / XAMPP)
+Require all denied

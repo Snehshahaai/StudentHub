@@ -44,6 +44,14 @@ Shared code: `php/db.php` (connection + prepared statements), `php/lib.php` (res
 |---|---|---|
 | `pages/student-dashboard.php`, `pages/profile.php` | student | login page, or the admin dashboard for staff |
 | `pages/admin-dashboard.php` | faculty, admin | login page, or the student dashboard for students |
+| `pages/admin-students.php`, `pages/admin-student-view.php` | faculty, admin (view & search) | as above |
+| `pages/admin-student-form.php` | admin only (add & edit) | as above |
+
+### Student management module
+
+`pages/admin-students.php` lists students with **search** (name, username, email, enrollment no., mobile), **filters** (course, year, status, gender), sorting and pagination. Admins can **add**, **edit**, **approve** and **delete**; faculty can only view. All queries live in `php/students.php` and run as MySQLi prepared statements. Every change is protected by a CSRF token, is written to `audit_logs`, and shows a success or failure message on the next page.
+
+Deleting a student also deletes their attendance, submissions, results and event registrations (`ON DELETE CASCADE`); the confirmation dialog says so.
 
 Sessions end after **30 minutes** without activity and always after **8 hours**. Logging in with "Remember login state" signs you back in automatically for 30 days. To try the timeout quickly:
 ```

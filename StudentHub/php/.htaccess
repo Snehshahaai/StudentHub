@@ -1,4 +1,4 @@
 # Helper files are included by other scripts, never opened directly (Apache / XAMPP)
-<FilesMatch "^(lib|config|db|auth|guard)\.php$">
+<FilesMatch "^(lib|config|db|auth|guard|students)\.php$">
     Require all denied
 </FilesMatch>

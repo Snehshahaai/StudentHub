@@ -276,6 +276,46 @@ function login_from_remember_cookie(): ?array
 }
 
 /* ==========================================================================
+   CSRF TOKENS & FLASH MESSAGES
+   ========================================================================== */
+
+/**
+ * One secret per session, put in a hidden field on every form that changes
+ * data. A form posted from another website can't know it, so it's rejected.
+ */
+function csrf_token(): string
+{
+    start_session();
+    if (empty($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['csrf_token'];
+}
+
+function csrf_valid(): bool
+{
+    start_session();
+    $sent = $_POST['csrf_token'] ?? '';
+    return is_string($sent) && !empty($_SESSION['csrf_token'])
+        && hash_equals($_SESSION['csrf_token'], $sent);
+}
+
+/** Message shown once on the next page (Post/Redirect/Get). */
+function set_flash(string $type, string $message): void
+{
+    start_session();
+    $_SESSION['flash'] = ['type' => $type, 'message' => $message];
+}
+
+function take_flash(): ?array
+{
+    start_session();
+    $flash = $_SESSION['flash'] ?? null;
+    unset($_SESSION['flash']);
+    return $flash;
+}
+
+/* ==========================================================================
    BRUTE-FORCE PROTECTION
    ========================================================================== */
 

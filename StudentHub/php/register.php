@@ -10,7 +10,7 @@
 
 declare(strict_types=1);
 
-require __DIR__ . '/lib.php';
+require __DIR__ . '/students.php';
 
 const RETURN_TO = '../pages/register.html';
 
@@ -48,10 +48,8 @@ $confirm  = is_string($_POST['confirmPassword'] ?? null) ? $_POST['confirmPasswo
 /* ---------- Validate (same rules as js/register.js) ---------- */
 $errors = [];
 
-if ($input['fullName'] === '') {
-    $errors['fullName'] = 'Full name is required.';
-} elseif (!preg_match('/^(?=.{3,50}$)[A-Za-z]+(?: [A-Za-z]+)*$/', $input['fullName'])) {
-    $errors['fullName'] = 'Name must be 3-50 letters and spaces only.';
+if ($message = name_error($input['fullName'])) {
+    $errors['fullName'] = $message;
 }
 
 if ($message = username_error($input['username'])) {
@@ -62,16 +60,12 @@ if ($message = email_error($input['email'])) {
     $errors['email'] = $message;
 }
 
-if ($input['mobile'] === '') {
-    $errors['mobile'] = 'Mobile number is required.';
-} elseif (!preg_match('/^[6-9]\d{9}$/', $input['mobile'])) {
-    $errors['mobile'] = 'Enter a valid 10-digit mobile number starting with 6-9.';
+if ($message = mobile_error($input['mobile'])) {
+    $errors['mobile'] = $message;
 }
 
-if ($password === '') {
-    $errors['password'] = 'Password is required.';
-} elseif (strlen($password) > 72 || !preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9])\S{8,}$/', $password)) {
-    $errors['password'] = 'Password needs 8-72 characters, an uppercase, a lowercase, a number and a special character (no spaces).';
+if ($message = password_error($password)) {
+    $errors['password'] = $message;
 }
 
 if ($confirm === '') {
@@ -125,15 +119,8 @@ try {
     }
 
     $student = db_transaction(function () use ($input, $password, $course) {
-        // Enrollment no. = year + department code + next number, e.g. 2026CS110.
-        // FOR UPDATE locks the range so two sign-ups can't get the same number.
-        $prefix = date('Y') . $course['dept_code'];
-        $last = db_value(
-            'SELECT MAX(CAST(SUBSTRING(enrollment_no, ?) AS UNSIGNED))
-               FROM students WHERE enrollment_no LIKE ? FOR UPDATE',
-            [strlen($prefix) + 1, $prefix . '%']
-        );
-        $enrollmentNo = $prefix . (max(100, (int) $last) + 1);
+        // Enrollment no. = year + department code + next number, e.g. 2026CS110
+        $enrollmentNo = next_enrollment_no($course['dept_code']);
         $year = (int) $input['year'];
 
         $id = db_insert(

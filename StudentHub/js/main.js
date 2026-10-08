@@ -481,6 +481,12 @@ function dismissToast(toast) {
    7. DEMO INTERACTIONS & GLOBAL HELPERS
    ========================================================================== */
 function initDemoInteractions() {
+    // Forms with data-confirm="..." ask before submitting (e.g. deleting a student)
+    document.addEventListener('submit', event => {
+        const message = event.target.dataset?.confirm;
+        if (message && !window.confirm(message)) event.preventDefault();
+    });
+
     // Dynamic toast notification trigger buttons
     document.querySelectorAll('[data-trigger-toast]').forEach(btn => {
         btn.addEventListener('click', () => {
