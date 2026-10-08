@@ -26,14 +26,14 @@ function wants_json(): bool
  * JSON clients get { success, message, errors }; plain form posts are
  * redirected back to the page with the message in the query string.
  */
-function respond(bool $success, string $message, array $errors = [], string $returnTo = '../index.html', int $status = 0): never
+function respond(bool $success, string $message, array $errors = [], string $returnTo = '../index.html', int $status = 0, array $extra = []): never
 {
     if (wants_json()) {
         send_json($status ?: ($success ? 200 : 422), [
             'success' => $success,
             'message' => $message,
             'errors'  => (object) $errors,
-        ]);
+        ] + $extra);
     }
 
     // No-JS fallback: show the first field error so the user knows what to fix

@@ -127,10 +127,12 @@ CREATE TABLE password_resets (
         REFERENCES students (student_id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- "Remember login state" checkbox (selector + hashed validator pattern)
+-- "Remember login state" checkbox (selector + hashed validator pattern).
+-- Belongs to exactly one student or one faculty/admin account.
 CREATE TABLE remember_tokens (
     token_id        INT UNSIGNED NOT NULL AUTO_INCREMENT,
-    student_id      INT UNSIGNED NOT NULL,
+    student_id      INT UNSIGNED NULL,
+    faculty_id      INT UNSIGNED NULL,
     selector        CHAR(24)     NOT NULL,
     validator_hash  CHAR(64)     NOT NULL,              -- sha256 of the cookie secret
     user_agent      VARCHAR(255) NULL,
@@ -139,7 +141,10 @@ CREATE TABLE remember_tokens (
     PRIMARY KEY (token_id),
     UNIQUE KEY uq_remember_selector (selector),
     CONSTRAINT fk_remember_tokens_student FOREIGN KEY (student_id)
-        REFERENCES students (student_id) ON DELETE CASCADE
+        REFERENCES students (student_id) ON DELETE CASCADE,
+    CONSTRAINT fk_remember_tokens_faculty FOREIGN KEY (faculty_id)
+        REFERENCES faculty (faculty_id) ON DELETE CASCADE,
+    CONSTRAINT chk_remember_tokens_owner CHECK ((student_id IS NULL) <> (faculty_id IS NULL))
 ) ENGINE=InnoDB;
 
 -- ==========================================================================

@@ -1,8 +1,9 @@
 <?php
 /**
- * StudentHub - Student Login Handler
- * Checks the email or username + password against the `students` table, starts a
- * session and optionally sets a "remember me" cookie.
+ * StudentHub - Login Handler (students, faculty and admins)
+ * Finds the account by email or username, checks the password with
+ * password_verify(), starts a fresh session (new session id) and sends the
+ * user to the dashboard for their role. Optional "remember me" cookie.
  */
 
 declare(strict_types=1);
@@ -10,9 +11,8 @@ declare(strict_types=1);
 require __DIR__ . '/auth.php';
 
 const RETURN_TO = '../pages/login.html';
-const DASHBOARD = '../pages/student-dashboard.html';
 
-// Compared against when the email doesn't exist, so both cases take the same time
+// Compared against when the account doesn't exist, so both cases take the same time
 const DUMMY_HASH = '$2y$12$39uymJhLlgqJQpSrrXkhGeTjB3mV51dLSERVH1a7DkooG.rBNTx1y';
 
 require_post(RETURN_TO);
@@ -38,46 +38,74 @@ if ($errors) {
     respond(false, 'Please fix the highlighted fields.', $errors, RETURN_TO);
 }
 
+/* ---------- Find the account ---------- */
+// Students log in with email or username; faculty and admins with their email
+function find_account(string $login, bool $byEmail): ?array
+{
+    $student = db_one(
+        "SELECT student_id AS id, full_name, password_hash, status, 'student' AS role
+           FROM students WHERE " . ($byEmail ? 'email' : 'username') . ' = ?',
+        [$login]
+    );
+    if ($student) {
+        return ['type' => 'student'] + $student;
+    }
+    if (!$byEmail) {
+        return null;
+    }
+    $staff = db_one(
+        'SELECT faculty_id AS id, full_name, password_hash, status, role FROM faculty WHERE email = ?',
+        [$login]
+    );
+    return $staff ? ['type' => 'faculty'] + $staff : null;
+}
+
 /* ---------- Authenticate ---------- */
 try {
     if (too_many_failed_logins($login)) {
         respond(false, 'Too many failed attempts. Please wait ' . LOCKOUT_MINUTES . ' minutes and try again.', [], RETURN_TO, 429);
     }
 
-    $student = db_one(
-        'SELECT student_id, full_name, password_hash, status FROM students WHERE '
-            . ($byEmail ? 'email' : 'username') . ' = ?',
-        [$login]
-    );
+    $account = find_account($login, $byEmail);
 
-    $valid = password_verify($password, $student['password_hash'] ?? DUMMY_HASH) && $student !== null;
+    // password_verify() compares against the stored password_hash() value
+    $valid = password_verify($password, $account['password_hash'] ?? DUMMY_HASH) && $account !== null;
 
     if (!$valid) {
-        audit_log('student', $student ? (int) $student['student_id'] : null, 'login.failed', 'students', null, $login);
+        audit_log($account['role'] ?? 'system', isset($account['id']) ? (int) $account['id'] : null, 'login.failed', null, null, $login);
         // Same message for "no such account" and "wrong password", so accounts can't be guessed
         respond(false, 'Incorrect email/username or password.', ['password' => 'Incorrect email/username or password.'], RETURN_TO, 401);
     }
 
-    if ($student['status'] !== 'active') {
-        $message = $student['status'] === 'pending'
+    if ($account['status'] !== 'active') {
+        $message = $account['status'] === 'pending'
             ? 'Your account is waiting for admin approval. Please try again later.'
             : 'Your account has been disabled. Please contact the administration office.';
         respond(false, $message, [], RETURN_TO, 403);
     }
 
-    $id = (int) $student['student_id'];
+    $id = (int) $account['id'];
 
     // Upgrade old hashes automatically when PHP's default algorithm changes
-    if (password_needs_rehash($student['password_hash'], PASSWORD_DEFAULT)) {
-        db_execute('UPDATE students SET password_hash = ? WHERE student_id = ?',
+    if (password_needs_rehash($account['password_hash'], PASSWORD_DEFAULT)) {
+        db_execute($account['type'] === 'student'
+            ? 'UPDATE students SET password_hash = ? WHERE student_id = ?'
+            : 'UPDATE faculty SET password_hash = ? WHERE faculty_id = ?',
             [password_hash($password, PASSWORD_DEFAULT), $id]);
     }
 
-    login_student($id, $remember);
-    audit_log('student', $id, 'login.success', 'students', $id, $login);
+    login_user($account['type'], $id, $remember);
+    audit_log($account['role'], $id, 'login.success', $account['type'] === 'student' ? 'students' : 'faculty', $id, $login);
 } catch (mysqli_sql_exception $e) {
     respond_db_error($e, 'login', RETURN_TO);
 }
 
-$firstName = explode(' ', $student['full_name'])[0];
-respond(true, "Welcome back, {$firstName}! Logging you in...", [], DASHBOARD);
+/* ---------- Role-based redirect ---------- */
+$dashboard = DASHBOARDS[$account['role']];
+// Students by first name; staff by full name, since theirs often start with "Dr." or "Prof."
+$greeting = $account['type'] === 'student' ? explode(' ', $account['full_name'])[0] : $account['full_name'];
+
+respond(true, "Welcome back, {$greeting}! Logging you in...", [], '../pages/' . $dashboard, 0, [
+    'role'     => $account['role'],
+    'redirect' => $dashboard,
+]);

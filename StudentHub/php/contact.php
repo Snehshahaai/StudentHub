@@ -69,14 +69,15 @@ $ticket = new_id('MSG');
 
 try {
     // Link the ticket to the account when a logged-in student writes in
-    $student = current_student();
+    $user = current_user();
+    $studentId = ($user && $user['type'] === 'student') ? $user['id'] : null;
 
     db_insert(
         'INSERT INTO contact_messages (ticket_no, student_id, name, email, subject, message, ip_address)
          VALUES (?, ?, ?, ?, ?, ?, ?)',
         [
             $ticket,
-            $student ? (int) $student['student_id'] : null,
+            $studentId,
             $input['name'],
             $input['email'],
             $input['subject'],

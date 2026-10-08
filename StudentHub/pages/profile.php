@@ -1,3 +1,8 @@
+<?php
+// Students only: everyone else is redirected (php/guard.php)
+require __DIR__ . '/../php/guard.php';
+$user = require_role(['student']);
+?>
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 
@@ -51,13 +56,13 @@
             <div class="sh-nav-menu collapse navbar-collapse" id="shNavMenu">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item"><a class="nav-link" href="../index.html"><i class="fas fa-home me-1"></i> Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="student-dashboard.html"><i class="fas fa-chart-line me-1"></i> Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="student-dashboard.php"><i class="fas fa-chart-line me-1"></i> Dashboard</a></li>
                     <li class="nav-item"><a class="nav-link" href="attendance.html"><i class="fas fa-user-check me-1"></i> Attendance</a></li>
                     <li class="nav-item"><a class="nav-link" href="assignments.html"><i class="fas fa-tasks me-1"></i> Assignments</a></li>
                     <li class="nav-item"><a class="nav-link" href="material.html"><i class="fas fa-book me-1"></i> Materials</a></li>
                     <li class="nav-item"><a class="nav-link" href="notices.html"><i class="fas fa-bell me-1"></i> Notices</a></li>
                     <li class="nav-item"><a class="nav-link" href="faq.html"><i class="fas fa-question-circle me-1"></i> FAQ</a></li>
-                    <li class="nav-item"><a class="nav-link active" href="profile.html"><i class="fas fa-user me-1"></i> Profile</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="profile.php"><i class="fas fa-user me-1"></i> Profile</a></li>
                 </ul>
             </div>
         </div>

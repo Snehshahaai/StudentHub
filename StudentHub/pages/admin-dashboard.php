@@ -1,3 +1,8 @@
+<?php
+// Faculty and admins only: students are sent to their own dashboard (php/guard.php)
+require __DIR__ . '/../php/guard.php';
+$user = require_role(['faculty', 'admin']);
+?>
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 
@@ -30,6 +35,12 @@
             </a>
 
             <div class="d-flex align-items-center gap-2 ms-auto me-2 me-lg-0 order-lg-last">
+                <!-- Ends the PHP session (php/logout.php) -->
+                <form action="../php/logout.php" method="post" class="m-0">
+                    <button type="submit" class="btn btn-outline-primary btn-sm px-3" aria-label="Log out">
+                        <i class="fas fa-sign-out-alt"></i><span class="d-none d-sm-inline ms-1">Logout</span>
+                    </button>
+                </form>
                 <button type="button" class="theme-toggle-btn" aria-label="Toggle Light Dark Theme">
                     <i class="fas fa-moon text-primary"></i>
                     <span class="theme-text d-none d-sm-inline">Dark</span>
@@ -44,9 +55,8 @@
 
             <div class="sh-nav-menu collapse navbar-collapse" id="shNavMenu">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link active" href="admin-dashboard.html"><i class="fas fa-tachometer-alt me-1"></i> Admin Console</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="admin-dashboard.php"><i class="fas fa-tachometer-alt me-1"></i> Admin Console</a></li>
                     <li class="nav-item"><a class="nav-link" href="../index.html"><i class="fas fa-globe me-1"></i> Portal Main Site</a></li>
-                    <li class="nav-item"><a class="nav-link" href="login.html"><i class="fas fa-sign-out-alt me-1"></i> Logout</a></li>
                 </ul>
             </div>
         </div>
@@ -59,6 +69,11 @@
                 <div>
                     <h2><i class="fas fa-tools text-primary me-2"></i> Faculty & Administrative Controls</h2>
                     <p class="text-muted mb-0">Manage student registrations, post campus circulars, and monitor attendance metrics.</p>
+                    <p class="small mb-0 mt-2">
+                        <i class="fas fa-user-shield text-primary me-1"></i>
+                        Signed in as <strong><?= e($user['name']) ?></strong>
+                        <span class="badge bg-primary ms-1 text-uppercase"><?= e($user['role']) ?></span>
+                    </p>
                 </div>
                 <div>
                     <button class="btn btn-primary me-2" data-modal-target="createNoticeModal">
@@ -75,25 +90,25 @@
                 <div class="col-md-3">
                     <div class="card p-3 text-center border-start border-4 border-primary">
                         <small class="text-muted fw-bold">TOTAL STUDENTS</small>
-                        <h2 class="fw-bold mb-0 text-primary">1,248</h2>
+                        <h2 class="fw-bold mb-0 text-primary" data-me="total_students">1,248</h2>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="card p-3 text-center border-start border-4 border-success">
                         <small class="text-muted fw-bold">ACTIVE FACULTY</small>
-                        <h2 class="fw-bold mb-0 text-success">84</h2>
+                        <h2 class="fw-bold mb-0 text-success" data-me="active_faculty">84</h2>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="card p-3 text-center border-start border-4 border-warning">
                         <small class="text-muted fw-bold">SUBMISSIONS TODAY</small>
-                        <h2 class="fw-bold mb-0 text-warning">312</h2>
+                        <h2 class="fw-bold mb-0 text-warning" data-me="submissions_today">312</h2>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="card p-3 text-center border-start border-4 border-info">
-                        <small class="text-muted fw-bold">PORTAL HEALTH</small>
-                        <h2 class="fw-bold mb-0 text-info">99.9%</h2>
+                        <small class="text-muted fw-bold">OPEN TICKETS</small>
+                        <h2 class="fw-bold mb-0 text-info" data-me="open_tickets">0</h2>
                     </div>
                 </div>
             </div>
@@ -199,6 +214,9 @@
 
     <!-- Custom Main JS Engine -->
     <script src="../js/main.js"></script>
+
+    <!-- Loads live stats from php/me.php and handles the session timeout -->
+    <script src="../js/account.js"></script>
 </body>
 
 </html>

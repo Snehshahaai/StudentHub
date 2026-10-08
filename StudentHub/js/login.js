@@ -1,12 +1,21 @@
 /**
  * StudentHub - Login Form
  * Basic client checks, then posts to php/login.php. On success PHP has
- * started the session, so we move on to the dashboard.
+ * started the session and tells us which dashboard fits the user's role.
+ * Visitors who are already logged in go straight to their dashboard.
  */
 
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('loginForm');
     if (!form) return;
+
+    // Already logged in (or a valid "remember me" cookie)? Skip the form.
+    fetch('../php/me.php', { headers: { Accept: 'application/json' }, cache: 'no-store' })
+        .then(response => response.ok ? response.json() : null)
+        .then(result => {
+            if (result?.success) window.location.replace(result.dashboard);
+        })
+        .catch(() => { /* PHP not running: just show the form */ });
 
     const fields = {
         login: form.querySelector('#loginId'),
@@ -50,7 +59,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (result.success) {
                 StudentHub.showNotification(StudentHub.escapeHtml(result.message), 'success', 2500);
-                setTimeout(() => window.location.href = 'student-dashboard.html', 1200);
+                // Role-based redirect chosen by the server (student / faculty / admin)
+                setTimeout(() => window.location.href = result.redirect, 1200);
                 return;     // keep the button disabled while redirecting
             }
 
