@@ -1,8 +1,9 @@
 <?php
 /**
  * StudentHub - Student Registration Handler
- * Validates and sanitizes the registration form, then stores the student
- * in storage/registrations.json (password saved as a secure hash).
+ * Validates and sanitizes the registration form, then inserts the student
+ * into the MySQL `students` table (password saved as a secure hash) with a
+ * generated enrollment number such as 2026CS110.
  */
 
 declare(strict_types=1);
@@ -85,43 +86,73 @@ if ($errors) {
     respond(false, 'Please fix the highlighted fields.', $errors, RETURN_TO);
 }
 
-/* ---------- Store ---------- */
-$record = [
-    'id'           => new_id('STU'),
-    'fullName'     => $input['fullName'],
-    'email'        => $input['email'],
-    'mobile'       => $input['mobile'],
-    'course'       => $input['course'],
-    'year'         => (int) $input['year'],
-    'gender'       => $input['gender'],
-    'passwordHash' => password_hash($password, PASSWORD_DEFAULT),
-    'registeredAt' => date('c'),
-];
-
+/* ---------- Store in MySQL ---------- */
 try {
-    $duplicate = update_json_store('registrations.json', function (array &$records) use ($record) {
-        foreach ($records as $existing) {
-            if (($existing['email'] ?? '') === $record['email']) {
-                return 'email';
-            }
-            if (($existing['mobile'] ?? '') === $record['mobile']) {
-                return 'mobile';
-            }
-        }
-        $records[] = $record;
-        return null;
+    // Friendly duplicate messages (the UNIQUE keys below are the real guarantee)
+    $existing = db_one(
+        'SELECT email = ? AS same_email FROM students WHERE email = ? OR mobile = ? LIMIT 1',
+        [$input['email'], $input['email'], $input['mobile']]
+    );
+    if ($existing) {
+        respond(false, 'This account already exists.', $existing['same_email']
+            ? ['email' => 'This email is already registered. Try logging in instead.']
+            : ['mobile' => 'This mobile number is already registered.'], RETURN_TO);
+    }
+
+    $course = db_one(
+        'SELECT c.course_id, d.code AS dept_code
+           FROM courses c JOIN departments d ON d.department_id = c.department_id
+          WHERE c.code = ?',
+        [$input['course']]
+    );
+    if (!$course) {
+        respond(false, 'Please fix the highlighted fields.', ['course' => 'Please select a valid course.'], RETURN_TO);
+    }
+
+    $student = db_transaction(function () use ($input, $password, $course) {
+        // Enrollment no. = year + department code + next number, e.g. 2026CS110.
+        // FOR UPDATE locks the range so two sign-ups can't get the same number.
+        $prefix = date('Y') . $course['dept_code'];
+        $last = db_value(
+            'SELECT MAX(CAST(SUBSTRING(enrollment_no, ?) AS UNSIGNED))
+               FROM students WHERE enrollment_no LIKE ? FOR UPDATE',
+            [strlen($prefix) + 1, $prefix . '%']
+        );
+        $enrollmentNo = $prefix . (max(100, (int) $last) + 1);
+        $year = (int) $input['year'];
+
+        $id = db_insert(
+            'INSERT INTO students
+                (enrollment_no, full_name, email, mobile, password_hash, gender,
+                 course_id, year_of_study, semester, status, terms_accepted_at)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())',
+            [
+                $enrollmentNo,
+                $input['fullName'],
+                $input['email'],
+                $input['mobile'],
+                password_hash($password, PASSWORD_DEFAULT),
+                $input['gender'],
+                (int) $course['course_id'],
+                $year,
+                $year * 2 - 1,             // first semester of the chosen year
+                'active',                  // self-registration is approved automatically
+            ]
+        );
+        audit_log('student', $id, 'student.register', 'students', $id, "Registered {$enrollmentNo}");
+
+        return ['id' => $id, 'enrollment_no' => $enrollmentNo];
     });
-} catch (Throwable $e) {
-    error_log('[StudentHub register] ' . $e->getMessage());
-    respond(false, 'Server error: your registration could not be saved. Please try again later.', [], RETURN_TO);
+} catch (mysqli_sql_exception $e) {
+    // Lost a race with an identical sign-up between the check and the insert
+    if ($e->getCode() === 1062 && str_contains($e->getMessage(), 'uq_students_email')) {
+        respond(false, 'This account already exists.', ['email' => 'This email is already registered. Try logging in instead.'], RETURN_TO);
+    }
+    if ($e->getCode() === 1062 && str_contains($e->getMessage(), 'uq_students_mobile')) {
+        respond(false, 'This account already exists.', ['mobile' => 'This mobile number is already registered.'], RETURN_TO);
+    }
+    respond_db_error($e, 'register', RETURN_TO);
 }
 
-if ($duplicate === 'email') {
-    respond(false, 'This account already exists.', ['email' => 'This email is already registered. Try logging in instead.'], RETURN_TO);
-}
-if ($duplicate === 'mobile') {
-    respond(false, 'This account already exists.', ['mobile' => 'This mobile number is already registered.'], RETURN_TO);
-}
-
-$firstName = explode(' ', $record['fullName'])[0];
-respond(true, "Registration successful! Welcome to StudentHub, {$firstName}. Your student ID is {$record['id']}.", [], RETURN_TO);
+$firstName = explode(' ', $input['fullName'])[0];
+respond(true, "Registration successful! Welcome to StudentHub, {$firstName}. Your enrollment number is {$student['enrollment_no']}.", [], '../pages/login.html');

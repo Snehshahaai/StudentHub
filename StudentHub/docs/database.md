@@ -17,6 +17,20 @@ Connection settings are in `php/config.php`. The defaults are XAMPP's: `root` wi
 
 Demo logins: `sneh.shah@university.edu` / `Student@123`, `admin@university.edu` / `Admin@123`.
 
+## PHP endpoints
+
+Run the site with `php -S localhost:8000 router.php` from `StudentHub/` (or through XAMPP's Apache).
+
+| File | Method | What it does | Tables |
+|---|---|---|---|
+| `php/register.php` | POST | Validates the form, creates the student with an enrollment no. like `2026IT205` | `students`, `audit_logs` |
+| `php/login.php` | POST | Checks email + password, starts the session, optional remember-me cookie, locks out after 5 failed tries in 15 min | `students`, `remember_tokens`, `audit_logs` |
+| `php/logout.php` | POST | Ends the session and deletes the remember-me token | `remember_tokens` |
+| `php/me.php` | GET | Logged-in student's profile and dashboard stats as JSON (401 if logged out) | views + `assignments`, `study_materials` |
+| `php/contact.php` | POST | Saves a support ticket, linked to the student when logged in | `contact_messages` |
+
+Shared code: `php/db.php` (connection + prepared statements), `php/lib.php` (responses, sanitizing), `php/auth.php` (sessions).
+
 ## Tables by page
 
 | Page / feature | Tables |

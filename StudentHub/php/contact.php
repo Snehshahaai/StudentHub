@@ -1,13 +1,13 @@
 <?php
 /**
  * StudentHub - Contact / Support Form Handler
- * Validates and sanitizes the contact form, then appends the message to
- * storage/contacts.csv.
+ * Validates and sanitizes the contact form, then saves the message as a
+ * support ticket in the MySQL `contact_messages` table.
  */
 
 declare(strict_types=1);
 
-require __DIR__ . '/lib.php';
+require __DIR__ . '/auth.php';
 
 const RETURN_TO = '../pages/contact.html';
 
@@ -64,21 +64,28 @@ if ($errors) {
     respond(false, 'Please fix the highlighted fields.', $errors, RETURN_TO);
 }
 
-/* ---------- Store ---------- */
+/* ---------- Store in MySQL ---------- */
 $ticket = new_id('MSG');
 
 try {
-    append_csv('contacts.csv', [
-        'id'          => $ticket,
-        'submittedAt' => date('c'),
-        'name'        => $input['name'],
-        'email'       => $input['email'],
-        'subject'     => $input['subject'],
-        'message'     => $input['message'],
-    ]);
-} catch (Throwable $e) {
-    error_log('[StudentHub contact] ' . $e->getMessage());
-    respond(false, 'Server error: your message could not be saved. Please try again later.', [], RETURN_TO);
+    // Link the ticket to the account when a logged-in student writes in
+    $student = current_student();
+
+    db_insert(
+        'INSERT INTO contact_messages (ticket_no, student_id, name, email, subject, message, ip_address)
+         VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [
+            $ticket,
+            $student ? (int) $student['student_id'] : null,
+            $input['name'],
+            $input['email'],
+            $input['subject'],
+            $input['message'],
+            client_ip(),
+        ]
+    );
+} catch (mysqli_sql_exception $e) {
+    respond_db_error($e, 'contact', RETURN_TO);
 }
 
 respond(true, "Message sent! Your ticket number is {$ticket}. Our support team will reply within 24 hours.", [], RETURN_TO);

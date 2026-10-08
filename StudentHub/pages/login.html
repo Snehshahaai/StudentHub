@@ -67,22 +67,24 @@
                                 <p class="text-muted small">Enter your credentials to access your student dashboard</p>
                             </div>
 
-                            <form onsubmit="event.preventDefault(); StudentHub.showNotification('Welcome back! Logging in...', 'success'); setTimeout(() => window.location.href='student-dashboard.html', 1500);">
+                            <form id="loginForm" action="../php/login.php" method="post" novalidate>
                                 <div class="mb-3">
-                                    <label class="form-label fw-bold"><i class="fas fa-envelope me-1 text-primary"></i> Email Address</label>
-                                    <input type="email" class="form-control" placeholder="student@university.edu" required>
+                                    <label for="loginEmail" class="form-label fw-bold"><i class="fas fa-envelope me-1 text-primary"></i> Email Address</label>
+                                    <input type="email" class="form-control" id="loginEmail" name="email" placeholder="student@university.edu" maxlength="100" autocomplete="username" required>
+                                    <div class="invalid-feedback"></div>
                                 </div>
 
                                 <div class="mb-3">
                                     <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <label class="form-label fw-bold mb-0"><i class="fas fa-lock me-1 text-primary"></i> Password</label>
+                                        <label for="loginPassword" class="form-label fw-bold mb-0"><i class="fas fa-lock me-1 text-primary"></i> Password</label>
                                         <a href="#" class="small text-primary" data-modal-target="forgotPasswordModal">Forgot Password?</a>
                                     </div>
-                                    <input type="password" class="form-control" placeholder="••••••••" required>
+                                    <input type="password" class="form-control" id="loginPassword" name="password" placeholder="••••••••" autocomplete="current-password" required>
+                                    <div class="invalid-feedback"></div>
                                 </div>
 
                                 <div class="form-check mb-4">
-                                    <input type="checkbox" class="form-check-input" id="rememberMe">
+                                    <input type="checkbox" class="form-check-input" id="rememberMe" name="remember" value="1">
                                     <label class="form-check-label text-muted" for="rememberMe">Remember login state</label>
                                 </div>
 
@@ -134,6 +136,9 @@
 
     <!-- Custom Main JS Engine -->
     <script src="../js/main.js"></script>
+
+    <!-- Login form: submits to php/login.php -->
+    <script src="../js/login.js"></script>
 </body>
 
 </html>

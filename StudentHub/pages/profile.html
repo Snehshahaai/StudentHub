@@ -30,6 +30,12 @@
             </a>
 
             <div class="d-flex align-items-center gap-2 ms-auto me-2 me-lg-0 order-lg-last">
+                <!-- Ends the PHP session (php/logout.php) -->
+                <form action="../php/logout.php" method="post" class="m-0">
+                    <button type="submit" class="btn btn-outline-primary btn-sm px-3" aria-label="Log out">
+                        <i class="fas fa-sign-out-alt"></i><span class="d-none d-sm-inline ms-1">Logout</span>
+                    </button>
+                </form>
                 <button type="button" class="theme-toggle-btn" aria-label="Toggle Light Dark Theme">
                     <i class="fas fa-moon text-primary"></i>
                     <span class="theme-text d-none d-sm-inline">Dark</span>
@@ -71,8 +77,8 @@
                                     </div>
                                 </div>
                                 <div>
-                                    <h3 class="mb-1">Sneh Shah</h3>
-                                    <p class="text-muted mb-1"><i class="fas fa-graduation-cap me-1"></i> B.Tech Computer Engineering | Sem 6</p>
+                                    <h3 class="mb-1" data-me="full_name">Sneh Shah</h3>
+                                    <p class="text-muted mb-1"><i class="fas fa-graduation-cap me-1"></i> <span data-me="course_semester">B.Tech Computer Engineering | Sem 6</span></p>
                                     <span class="badge bg-success"><i class="fas fa-shield-alt me-1"></i> Active Student Account</span>
                                 </div>
                             </div>
@@ -81,25 +87,25 @@
                                 <div class="row g-3">
                                     <div class="col-md-6">
                                         <label class="form-label fw-bold">Enrollment Number</label>
-                                        <input type="text" class="form-control" value="2026CS108" readonly>
+                                        <input type="text" class="form-control" value="2026CS108" data-me="enrollment_no" readonly>
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label fw-bold">Department</label>
-                                        <input type="text" class="form-control" value="Computer Engineering" readonly>
+                                        <input type="text" class="form-control" value="Computer Engineering" data-me="department" readonly>
                                     </div>
 
                                     <div class="col-md-6">
                                         <label class="form-label fw-bold">Email Address</label>
-                                        <input type="email" class="form-control" value="snehshah@university.edu" required>
+                                        <input type="email" class="form-control" value="snehshah@university.edu" data-me="email" required>
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label fw-bold">Phone Number</label>
-                                        <input type="tel" class="form-control" value="+91 9876543210" required>
+                                        <input type="tel" class="form-control" value="+91 9876543210" data-me="phone" required>
                                     </div>
 
                                     <div class="col-12">
                                         <label class="form-label fw-bold">Address</label>
-                                        <textarea class="form-control" rows="2">Ahmedabad, Gujarat, India</textarea>
+                                        <textarea class="form-control" rows="2" data-me="address">Ahmedabad, Gujarat, India</textarea>
                                     </div>
 
                                     <div class="col-12 d-flex justify-content-between align-items-center mt-4">
@@ -157,7 +163,10 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <!-- Custom Main JS Engine -->
-    <script src="../js/main.js"></script>
+        <script src="../js/main.js"></script>
+
+    <!-- Loads the logged-in student from php/me.php (redirects to login if needed) -->
+    <script src="../js/account.js"></script>
 </body>
 
 </html>
