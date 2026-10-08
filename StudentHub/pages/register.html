@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="dark">
 
 <head>
     <meta charset="UTF-8">
@@ -67,56 +67,91 @@
                                 <p class="text-muted small">Fill in your details to create your official StudentHub profile</p>
                             </div>
 
-                            <form onsubmit="event.preventDefault(); StudentHub.showNotification('Registration successful! Redirecting to login...', 'success'); setTimeout(() => window.location.href='login.html', 1800);">
+                            <form id="registerForm" action="../php/register.php" method="post" novalidate>
+                                <!-- Honeypot: hidden from people, bots fill it in -->
+                                <input type="text" name="website" class="sh-hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+
                                 <div class="row g-3">
-                                    <div class="col-md-6">
-                                        <label class="form-label fw-bold">First Name</label>
-                                        <input type="text" class="form-control" placeholder="John" required>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label fw-bold">Last Name</label>
-                                        <input type="text" class="form-control" placeholder="Doe" required>
+                                    <div class="col-12">
+                                        <label for="fullName" class="form-label fw-bold">Full Name</label>
+                                        <input type="text" class="form-control" id="fullName" name="fullName" placeholder="John Doe" minlength="3" maxlength="50" pattern="[A-Za-z]+( [A-Za-z]+)*" autocomplete="name" required>
+                                        <div class="invalid-feedback"></div>
                                     </div>
 
                                     <div class="col-md-6">
-                                        <label class="form-label fw-bold">Enrollment Number</label>
-                                        <input type="text" class="form-control" placeholder="2026CS101" required>
+                                        <label for="email" class="form-label fw-bold">Email Address</label>
+                                        <input type="email" class="form-control" id="email" name="email" placeholder="student@university.edu" maxlength="100" pattern="[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}" autocomplete="email" required>
+                                        <div class="invalid-feedback"></div>
                                     </div>
                                     <div class="col-md-6">
-                                        <label class="form-label fw-bold">Branch / Department</label>
-                                        <select class="form-select" required>
-                                            <option value="">Choose Department...</option>
-                                            <option>Computer Science & Engineering</option>
-                                            <option>Information Technology</option>
-                                            <option>Electronics & Communication</option>
-                                            <option>Mechanical Engineering</option>
+                                        <label for="mobile" class="form-label fw-bold">Mobile Number</label>
+                                        <input type="tel" class="form-control" id="mobile" name="mobile" placeholder="9876543210" minlength="10" maxlength="10" pattern="[6-9][0-9]{9}" inputmode="numeric" autocomplete="tel-national" required>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label for="password" class="form-label fw-bold">Password</label>
+                                        <input type="password" class="form-control" id="password" name="password" placeholder="Minimum 8 characters" minlength="8" autocomplete="new-password" required>
+                                        <div class="form-text">8+ characters with uppercase, lowercase, number and special character.</div>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="confirmPassword" class="form-label fw-bold">Confirm Password</label>
+                                        <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" placeholder="Repeat password" minlength="8" autocomplete="new-password" required>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label for="course" class="form-label fw-bold">Course</label>
+                                        <select class="form-select" id="course" name="course" required>
+                                            <option value="">Choose Course...</option>
+                                            <option value="BTECH-CSE">B.Tech - Computer Science & Engineering</option>
+                                            <option value="BTECH-IT">B.Tech - Information Technology</option>
+                                            <option value="BTECH-EC">B.Tech - Electronics & Communication</option>
+                                            <option value="BTECH-ME">B.Tech - Mechanical Engineering</option>
+                                            <option value="BCA">BCA</option>
+                                            <option value="MCA">MCA</option>
                                         </select>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="year" class="form-label fw-bold">Year</label>
+                                        <select class="form-select" id="year" name="year" required>
+                                            <option value="">Choose Year...</option>
+                                            <option value="1">1st Year</option>
+                                            <option value="2">2nd Year</option>
+                                            <option value="3">3rd Year</option>
+                                            <option value="4">4th Year</option>
+                                        </select>
+                                        <div class="invalid-feedback"></div>
                                     </div>
 
-                                    <div class="col-md-6">
-                                        <label class="form-label fw-bold">Email Address</label>
-                                        <input type="email" class="form-control" placeholder="student@university.edu" required>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label fw-bold">Phone Number</label>
-                                        <input type="tel" class="form-control" placeholder="+91 9876543210" required>
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <label class="form-label fw-bold">Password</label>
-                                        <input type="password" class="form-control" placeholder="Minimum 8 characters" required>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label fw-bold">Confirm Password</label>
-                                        <input type="password" class="form-control" placeholder="Repeat password" required>
+                                    <div class="col-12">
+                                        <label class="form-label fw-bold d-block">Gender</label>
+                                        <div id="genderGroup">
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" name="gender" id="genderMale" value="Male" required>
+                                                <label class="form-check-label" for="genderMale">Male</label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" name="gender" id="genderFemale" value="Female">
+                                                <label class="form-check-label" for="genderFemale">Female</label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" name="gender" id="genderOther" value="Other">
+                                                <label class="form-check-label" for="genderOther">Other</label>
+                                            </div>
+                                        </div>
+                                        <div class="invalid-feedback" id="genderError"></div>
                                     </div>
 
                                     <div class="col-12">
                                         <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="termsCheck" required>
+                                            <input class="form-check-input" type="checkbox" id="termsCheck" name="terms" value="1" required>
                                             <label class="form-check-label text-muted small" for="termsCheck">
                                                 I agree to the <a href="#" data-modal-target="termsModal">Terms of Service & Privacy Policy</a> of StudentHub.
                                             </label>
+                                            <div class="invalid-feedback"></div>
                                         </div>
                                     </div>
 
@@ -172,6 +207,9 @@
 
     <!-- Custom Main JS Engine -->
     <script src="../js/main.js"></script>
+
+    <!-- Registration Form Validation -->
+    <script src="../js/register.js"></script>
 </body>
 
 </html>

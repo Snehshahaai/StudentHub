@@ -1,22 +1,17 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
-
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Frequently Asked Questions | StudentHub</title>
-
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
     <!-- Custom CSS -->
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/responsive.css">
 </head>
-
 <body>
 
     <!-- Dynamic Notification Toast Container -->
@@ -101,11 +96,19 @@
     <!-- Dedicated Collapsible FAQ Section -->
     <section class="faq-section py-5">
         <div class="container">
-            <div class="faq-controls mb-4">
+            <div class="faq-controls mb-3">
                 <div class="faq-search-box">
                     <i class="fas fa-search"></i>
-                    <input type="text" id="faqSearch" placeholder="Type keywords (e.g., password, attendance, assignment, notes)..." aria-label="Search FAQs">
+                    <input type="search" id="faqSearch" placeholder="Type keywords (e.g., password, attendance, assignment, notes)..." aria-label="Search FAQs">
                 </div>
+                <select class="form-select sh-select-auto" id="faqFilter" aria-label="Filter by topic">
+                    <option value="all">All topics</option>
+                </select>
+                <select class="form-select sh-select-auto" id="faqSort" aria-label="Sort FAQs">
+                    <option value="default">Most popular</option>
+                    <option value="question-asc">Question (A–Z)</option>
+                    <option value="category-asc">Group by topic</option>
+                </select>
                 <div class="faq-btn-group">
                     <button class="btn btn-outline-primary btn-sm" id="faqExpandAll">
                         <i class="fas fa-expand-alt me-1"></i> Expand All
@@ -115,99 +118,11 @@
                     </button>
                 </div>
             </div>
+            <p class="text-muted small mb-3" id="faqSummary" aria-live="polite"></p>
 
-            <div class="faq-accordion" data-single-open="true">
-                <!-- FAQ 1 -->
-                <div class="faq-item active">
-                    <div class="faq-header">
-                        <h5><i class="fas fa-key text-primary me-2"></i> How do I reset or change my StudentHub password?</h5>
-                        <div class="faq-icon"><i class="fas fa-chevron-down"></i></div>
-                    </div>
-                    <div class="faq-content">
-                        <div class="faq-content-inner">
-                            Go to the <a href="login.html">Login Page</a> and click on "Forgot Password?". Enter your registered student email address to receive a secure 6-digit reset code. If you are already logged in, you can also change your password under your <a href="profile.html">Student Profile</a> settings.
-                        </div>
-                    </div>
-                </div>
-
-                <!-- FAQ 2 -->
-                <div class="faq-item">
-                    <div class="faq-header">
-                        <h5><i class="fas fa-user-check text-primary me-2"></i> How is attendance calculated and updated?</h5>
-                        <div class="faq-icon"><i class="fas fa-chevron-down"></i></div>
-                    </div>
-                    <div class="faq-content">
-                        <div class="faq-content-inner">
-                            Faculty members mark attendance daily. Your overall percentage is calculated automatically: <code>(Lectures Attended / Total Conducted Lectures) * 100</code>. A minimum of 75% attendance is required to appear in semester examinations. Check your current standing on the <a href="attendance.html">Attendance Page</a>.
-                        </div>
-                    </div>
-                </div>
-
-                <!-- FAQ 3 -->
-                <div class="faq-item">
-                    <div class="faq-header">
-                        <h5><i class="fas fa-file-upload text-primary me-2"></i> What are the guidelines for uploading assignment solutions?</h5>
-                        <div class="faq-icon"><i class="fas fa-chevron-down"></i></div>
-                    </div>
-                    <div class="faq-content">
-                        <div class="faq-content-inner">
-                            Assignments can be uploaded directly on the <a href="assignments.html">Assignments Page</a>. Acceptable file formats include PDF, ZIP, and DOCX (up to 25MB). Make sure to upload your file prior to the posted deadline.
-                        </div>
-                    </div>
-                </div>
-
-                <!-- FAQ 4 -->
-                <div class="faq-item">
-                    <div class="faq-header">
-                        <h5><i class="fas fa-book-open text-primary me-2"></i> Where can I download subject study materials and PDFs?</h5>
-                        <div class="faq-icon"><i class="fas fa-chevron-down"></i></div>
-                    </div>
-                    <div class="faq-content">
-                        <div class="faq-content-inner">
-                            Navigate to the <a href="material.html">Materials Page</a> to download lecture slides, lab manuals, syllabus PDFs, and previous question papers uploaded by faculty and top students.
-                        </div>
-                    </div>
-                </div>
-
-                <!-- FAQ 5 -->
-                <div class="faq-item">
-                    <div class="faq-header">
-                        <h5><i class="fas fa-moon text-primary me-2"></i> How does the Light/Dark theme switcher work?</h5>
-                        <div class="faq-icon"><i class="fas fa-chevron-down"></i></div>
-                    </div>
-                    <div class="faq-content">
-                        <div class="faq-content-inner">
-                            Click the <strong>Theme Toggle Switch</strong> (Sun/Moon icon) at the top right of the navigation header on any page. StudentHub uses HTML5 <code>localStorage</code> to store your preference, ensuring dark mode remains enabled across all pages.
-                        </div>
-                    </div>
-                </div>
-
-                <!-- FAQ 6 -->
-                <div class="faq-item">
-                    <div class="faq-header">
-                        <h5><i class="fas fa-bars text-primary me-2"></i> How do I use the responsive mobile navigation drawer?</h5>
-                        <div class="faq-icon"><i class="fas fa-chevron-down"></i></div>
-                    </div>
-                    <div class="faq-content">
-                        <div class="faq-content-inner">
-                            On mobile screens and tablets, click the animated 3-bar hamburger icon in the top right. The mobile menu drawer slides down smoothly with all site navigation links. Clicking outside or selecting a link closes the menu automatically.
-                        </div>
-                    </div>
-                </div>
-
-                <!-- FAQ 7 -->
-                <div class="faq-item">
-                    <div class="faq-header">
-                        <h5><i class="fas fa-headset text-primary me-2"></i> How do I report a bug or contact academic support?</h5>
-                        <div class="faq-icon"><i class="fas fa-chevron-down"></i></div>
-                    </div>
-                    <div class="faq-content">
-                        <div class="faq-content-inner">
-                            Visit our <a href="contact.html">Contact Support Page</a> to submit an online message, or email our IT helpdesk directly at <code>studenthub@gmail.com</code>.
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <!-- Rendered from data/faqs.json by js/data-list.js -->
+            <div class="faq-accordion" id="faqList" data-single-open="true"></div>
+            <nav class="mt-4" id="faqPagination" aria-label="FAQ pages"></nav>
 
             <!-- Still Have Questions Callout Card -->
             <div class="card mt-5 p-4 text-center glass-card border-primary">
@@ -235,6 +150,9 @@
 
     <!-- Custom Main JS Engine -->
     <script src="../js/main.js"></script>
+
+    <!-- Fetch API data lists (search, filter, sort, pagination) -->
+    <script src="../js/data-list.js"></script>
 </body>
 
 </html>

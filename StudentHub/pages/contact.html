@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="dark">
 
 <head>
     <meta charset="UTF-8">
@@ -69,28 +69,43 @@
                     <div class="card p-3 shadow-sm">
                         <div class="card-body">
                             <h4 class="card-title mb-4"><i class="fas fa-paper-plane text-primary me-2"></i> Send Us a Message</h4>
-                            <form onsubmit="event.preventDefault(); StudentHub.showNotification('Message sent! Our support team will get back to you within 24 hours.', 'success', 5000); this.reset();">
+                            <form id="contactForm" action="../php/contact.php" method="post" novalidate>
+                                <!-- Honeypot: hidden from people, bots fill it in -->
+                                <input type="text" name="website" class="sh-hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+
                                 <div class="mb-3">
-                                    <label class="form-label fw-bold">Full Name</label>
-                                    <input type="text" class="form-control" placeholder="John Doe" required>
+                                    <label for="contactName" class="form-label fw-bold">Full Name</label>
+                                    <input type="text" class="form-control" id="contactName" name="name" placeholder="John Doe" minlength="2" maxlength="50" autocomplete="name" required>
+                                    <div class="invalid-feedback"></div>
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label fw-bold">Email Address</label>
-                                    <input type="email" class="form-control" placeholder="student@example.com" required>
+                                    <label for="contactEmail" class="form-label fw-bold">Email Address</label>
+                                    <input type="email" class="form-control" id="contactEmail" name="email" placeholder="student@example.com" maxlength="100" autocomplete="email" required>
+                                    <div class="invalid-feedback"></div>
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label fw-bold">Subject</label>
-                                    <select class="form-select">
+                                    <label for="contactSubject" class="form-label fw-bold">Subject</label>
+                                    <select class="form-select" id="contactSubject" name="subject" required>
+                                        <option value="">Choose a subject...</option>
                                         <option>General Inquiry</option>
                                         <option>Technical Portal Bug</option>
                                         <option>Attendance Discrepancy</option>
                                         <option>Assignment Portal Issue</option>
                                     </select>
+                                    <div class="invalid-feedback"></div>
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label fw-bold">Message</label>
-                                    <textarea class="form-control" rows="5" placeholder="Write your query in detail..." required></textarea>
+                                    <label for="contactMessage" class="form-label fw-bold">Message</label>
+                                    <textarea class="form-control" id="contactMessage" name="message" rows="5" minlength="10" maxlength="1000" placeholder="Write your query in detail..." required></textarea>
+                                    <div class="d-flex justify-content-between">
+                                        <div class="invalid-feedback"></div>
+                                        <small class="text-muted ms-auto mt-1" id="contactCounter">0 / 1000</small>
+                                    </div>
                                 </div>
+
+                                <!-- Server result (filled in by js/contact.js) -->
+                                <div class="alert d-none" id="contactResult" role="status" aria-live="polite"></div>
+
                                 <button type="submit" class="btn btn-primary w-100 btn-lg"><i class="fas fa-paper-plane me-2"></i> Submit Inquiry</button>
                             </form>
                         </div>
@@ -153,6 +168,9 @@
 
     <!-- Custom Main JS Engine -->
     <script src="../js/main.js"></script>
+
+    <!-- Contact form: client checks + PHP submission -->
+    <script src="../js/contact.js"></script>
 </body>
 
 </html>

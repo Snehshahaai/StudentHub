@@ -1,0 +1,2 @@
+# Stored form submissions are private: never serve this folder (Apache / XAMPP)
+Require all denied

@@ -7,6 +7,8 @@
  * - Modal Popup Manager (triggerable by data-modal-target or JS)
  * - Custom Image & Content Slider / Carousel
  * - Dynamic Floating Notification Banner / Toast System
+ * - Visual FX: scroll reveal, scroll progress, card spotlight, button ripple
+ * - Server form submission (PHP) with success/error messages
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -17,14 +19,16 @@ document.addEventListener('DOMContentLoaded', () => {
     initSliders();
     initNotificationSystem();
     initDemoInteractions();
+    initVisualFx();
+    initFlashMessage();
 });
 
 /* ==========================================================================
    1. LIGHT / DARK THEME SWITCHER
    ========================================================================== */
 function initTheme() {
-    const savedTheme = localStorage.getItem('sh_theme') || 
-        (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    // Dark neon theme is the default look; a saved choice still wins
+    const savedTheme = localStorage.getItem('sh_theme') || 'dark';
     
     setTheme(savedTheme);
 
@@ -134,37 +138,44 @@ function initFaqAccordion() {
     const accordionContainers = document.querySelectorAll('.faq-accordion');
 
     accordionContainers.forEach(container => {
-        const items = container.querySelectorAll('.faq-item');
+        // Delegated so it also works for FAQ items rendered later from JSON
+        const toggle = header => {
+            const item = header.closest('.faq-item');
+            const content = item && item.querySelector('.faq-content');
+            if (!content) return;
 
-        items.forEach(item => {
-            const header = item.querySelector('.faq-header');
-            const content = item.querySelector('.faq-content');
+            const isActive = item.classList.contains('active');
 
-            if (!header || !content) return;
+            // If container has single-open attribute, collapse other items
+            if (container.hasAttribute('data-single-open') && !isActive) {
+                container.querySelectorAll('.faq-item.active').forEach(otherItem => {
+                    otherItem.classList.remove('active');
+                    const otherContent = otherItem.querySelector('.faq-content');
+                    if (otherContent) otherContent.style.maxHeight = null;
+                });
+            }
 
-            header.addEventListener('click', () => {
-                const isActive = item.classList.contains('active');
+            // Toggle current item
+            if (isActive) {
+                item.classList.remove('active');
+                content.style.maxHeight = null;
+            } else {
+                item.classList.add('active');
+                content.style.maxHeight = content.scrollHeight + 'px';
+            }
+        };
 
-                // If container has single-open attribute, collapse other items
-                if (container.hasAttribute('data-single-open') && !isActive) {
-                    items.forEach(otherItem => {
-                        if (otherItem !== item) {
-                            otherItem.classList.remove('active');
-                            const otherContent = otherItem.querySelector('.faq-content');
-                            if (otherContent) otherContent.style.maxHeight = null;
-                        }
-                    });
-                }
+        container.addEventListener('click', e => {
+            const header = e.target.closest('.faq-header');
+            if (header) toggle(header);
+        });
 
-                // Toggle current item
-                if (isActive) {
-                    item.classList.remove('active');
-                    content.style.maxHeight = null;
-                } else {
-                    item.classList.add('active');
-                    content.style.maxHeight = content.scrollHeight + 'px';
-                }
-            });
+        container.addEventListener('keydown', e => {
+            const header = e.target.closest('.faq-header');
+            if (header && (e.key === 'Enter' || e.key === ' ')) {
+                e.preventDefault();
+                toggle(header);
+            }
         });
 
         // Initialize any default open item
@@ -174,24 +185,6 @@ function initFaqAccordion() {
             if (content) content.style.maxHeight = content.scrollHeight + 'px';
         }
     });
-
-    // FAQ Search / Filter Handler if present
-    const faqSearchInput = document.getElementById('faqSearch');
-    if (faqSearchInput) {
-        faqSearchInput.addEventListener('input', (e) => {
-            const query = e.target.value.toLowerCase().trim();
-            const faqItems = document.querySelectorAll('.faq-item');
-
-            faqItems.forEach(item => {
-                const text = item.textContent.toLowerCase();
-                if (text.includes(query)) {
-                    item.style.display = 'block';
-                } else {
-                    item.style.display = 'none';
-                }
-            });
-        });
-    }
 
     // Expand All / Collapse All buttons
     const expandAllBtn = document.getElementById('faqExpandAll');
@@ -498,10 +491,133 @@ function initDemoInteractions() {
     });
 }
 
+/* ==========================================================================
+   8. VISUAL FX (SCROLL REVEAL, PROGRESS BAR, SPOTLIGHT, RIPPLE)
+   ========================================================================== */
+function initVisualFx() {
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Scroll progress bar + navbar shrink
+    const progress = document.createElement('div');
+    progress.className = 'sh-scroll-progress';
+    document.body.appendChild(progress);
+    const navbar = document.querySelector('.navbar');
+
+    const onScroll = () => {
+        const max = document.documentElement.scrollHeight - window.innerHeight;
+        progress.style.transform = `scaleX(${max > 0 ? window.scrollY / max : 0})`;
+        if (navbar) navbar.classList.toggle('sh-scrolled', window.scrollY > 20);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+
+    // Scroll reveal: fade cards, headings and FAQ items in as they enter view
+    if (!reduceMotion && 'IntersectionObserver' in window) {
+        const targets = document.querySelectorAll(
+            'section:not(.hero) h2, section:not(.hero) .card, .faq-item, .sh-slider, .table-responsive, .list-group-item'
+        );
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (!entry.isIntersecting) return;
+                entry.target.classList.add('sh-visible');
+                observer.unobserve(entry.target);
+            });
+        }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+        targets.forEach(el => {
+            // Stagger siblings that sit in the same row/group
+            const siblings = el.parentElement ? Array.from(el.parentElement.parentElement?.children || []) : [];
+            const index = Math.max(0, siblings.indexOf(el.parentElement));
+            el.style.setProperty('--reveal-delay', `${Math.min(index, 5) * 0.08}s`);
+            el.classList.add('sh-reveal');
+            observer.observe(el);
+        });
+    }
+
+    // Spotlight glow that follows the mouse across cards
+    document.querySelectorAll('.card').forEach(card => {
+        card.addEventListener('pointermove', e => {
+            const rect = card.getBoundingClientRect();
+            card.style.setProperty('--mx', `${e.clientX - rect.left}px`);
+            card.style.setProperty('--my', `${e.clientY - rect.top}px`);
+        });
+    });
+
+    // Ripple burst on button clicks
+    document.addEventListener('pointerdown', e => {
+        const btn = e.target.closest('.btn');
+        if (!btn || reduceMotion) return;
+        const rect = btn.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height);
+        const ripple = document.createElement('span');
+        ripple.className = 'sh-ripple';
+        ripple.style.width = ripple.style.height = `${size}px`;
+        ripple.style.left = `${e.clientX - rect.left - size / 2}px`;
+        ripple.style.top = `${e.clientY - rect.top - size / 2}px`;
+        btn.appendChild(ripple);
+        ripple.addEventListener('animationend', () => ripple.remove());
+    });
+}
+
+/* ==========================================================================
+   9. SERVER FORM SUBMISSION (PHP)
+   ========================================================================== */
+function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, ch => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    })[ch]);
+}
+
+/**
+ * POST a form to its PHP action and return the JSON reply:
+ * { success: boolean, message: string, errors: { fieldName: message } }
+ */
+async function submitForm(form) {
+    const response = await fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { Accept: 'application/json' }
+    });
+
+    try {
+        return await response.json();
+    } catch {
+        // A static server (e.g. Live Server) can't run PHP and returns HTML or the source
+        throw new Error(`The server did not process the form (HTTP ${response.status}). ` +
+            'Run the site with PHP: php -S localhost:8000 router.php');
+    }
+}
+
+// Disable a submit button and show a spinner while a request is running
+function setButtonLoading(button, loading, label = 'Submitting...') {
+    if (!button) return;
+    if (loading) {
+        button.dataset.label = button.innerHTML;
+        button.innerHTML = `<i class="fas fa-circle-notch fa-spin me-2"></i>${escapeHtml(label)}`;
+    } else if (button.dataset.label) {
+        button.innerHTML = button.dataset.label;
+    }
+    button.disabled = loading;
+}
+
+// Without JavaScript the PHP handler redirects back with ?status=&message=
+function initFlashMessage() {
+    const params = new URLSearchParams(window.location.search);
+    const status = params.get('status');
+    const message = params.get('message');
+    if (!status || !message) return;
+
+    showNotification(escapeHtml(message), status === 'success' ? 'success' : 'danger', 6000);
+    history.replaceState(null, '', window.location.pathname);
+}
+
 // Expose public API globally
 window.StudentHub = {
     setTheme,
     openModal,
     closeModal,
-    showNotification
+    showNotification,
+    escapeHtml,
+    submitForm,
+    setButtonLoading
 };

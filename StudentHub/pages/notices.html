@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="dark">
 
 <head>
     <meta charset="UTF-8">
@@ -70,88 +70,80 @@
                 </button>
             </div>
 
-            <div class="row g-4">
-                <div class="col-md-6 col-lg-4">
-                    <div class="card h-100 p-3 shadow-sm border-top border-4 border-danger">
-                        <div class="card-body">
-                            <span class="badge bg-danger mb-2"><i class="fas fa-exclamation-triangle me-1"></i> Urgent</span>
-                            <h5 class="card-title fw-bold">Mid-Semester Exam Schedule</h5>
-                            <p class="text-muted small"><i class="far fa-clock me-1"></i> Posted: 18 Aug 2026</p>
-                            <p class="card-text">Mid-semester examinations commence on September 1st, 2026. Hall tickets will be issued via the portal on August 25th.</p>
-                            <button class="btn btn-outline-primary btn-sm mt-2" data-modal-target="examNoticeModal">Read Full Details</button>
-                        </div>
-                    </div>
+            <!-- Notice toolbar: search, filter, sort, page size -->
+            <div class="sh-list-toolbar">
+                <div class="faq-search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="search" id="noticeSearch" placeholder="Search notices (e.g. exam, placement, fee)..." aria-label="Search notices">
                 </div>
-
-                <div class="col-md-6 col-lg-4">
-                    <div class="card h-100 p-3 shadow-sm border-top border-4 border-warning">
-                        <div class="card-body">
-                            <span class="badge bg-warning text-dark mb-2"><i class="fas fa-briefcase me-1"></i> Career</span>
-                            <h5 class="card-title fw-bold">Campus Placement Registration</h5>
-                            <p class="text-muted small"><i class="far fa-clock me-1"></i> Posted: 16 Aug 2026</p>
-                            <p class="card-text">Final year students are requested to complete their T&P portal registrations before August 30th for upcoming recruitment drives.</p>
-                            <button class="btn btn-outline-primary btn-sm mt-2" data-modal-target="placementNoticeModal">Read Full Details</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-6 col-lg-4">
-                    <div class="card h-100 p-3 shadow-sm border-top border-4 border-success">
-                        <div class="card-body">
-                            <span class="badge bg-success mb-2"><i class="fas fa-calendar-alt me-1"></i> Event</span>
-                            <h5 class="card-title fw-bold">Annual Sports Festival 2026</h5>
-                            <p class="text-muted small"><i class="far fa-clock me-1"></i> Posted: 12 Aug 2026</p>
-                            <p class="card-text">Registrations are now open for inter-departmental sports events. Contact student coordinators for team submissions.</p>
-                            <button class="btn btn-outline-primary btn-sm mt-2" data-modal-target="sportsNoticeModal">Read Full Details</button>
-                        </div>
-                    </div>
-                </div>
+                <select class="form-select" id="noticeFilter" aria-label="Filter by category">
+                    <option value="all">All categories</option>
+                </select>
+                <select class="form-select" id="noticeSort" aria-label="Sort notices">
+                    <option value="date-desc">Newest first</option>
+                    <option value="date-asc">Oldest first</option>
+                    <option value="priority">Priority (urgent first)</option>
+                    <option value="title-asc">Title (A–Z)</option>
+                </select>
+                <select class="form-select" id="noticePageSize" aria-label="Notices per page">
+                    <option value="3">3 / page</option>
+                    <option value="6">6 / page</option>
+                    <option value="9">9 / page</option>
+                    <option value="12">12 / page</option>
+                </select>
             </div>
+            <p class="text-muted small mb-3" id="noticeSummary" aria-live="polite"></p>
+
+            <!-- Rendered from data/notices.json by js/data-list.js -->
+            <div class="row g-4" id="noticeList"></div>
+            <nav class="mt-4" id="noticePagination" aria-label="Notice pages"></nav>
         </div>
     </section>
 
-    <!-- Exam Notice Detail Modal -->
-    <div class="sh-modal-overlay" id="examNoticeModal">
+    <!-- Upcoming Events Section -->
+    <section class="py-5 bg-surface border-top">
+        <div class="container">
+            <div class="mb-4">
+                <h2><i class="fas fa-calendar-alt text-primary me-2"></i> Campus Events</h2>
+                <p class="text-muted mb-0">Workshops, fests, seminars and sports happening around campus.</p>
+            </div>
+
+            <div class="sh-list-toolbar">
+                <div class="faq-search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="search" id="eventSearch" placeholder="Search events, venues or organizers..." aria-label="Search events">
+                </div>
+                <select class="form-select" id="eventFilter" aria-label="Filter by event type">
+                    <option value="all">All types</option>
+                </select>
+                <select class="form-select" id="eventSort" aria-label="Sort events">
+                    <option value="upcoming">Upcoming first</option>
+                    <option value="date-asc">Date (oldest)</option>
+                    <option value="date-desc">Date (latest)</option>
+                    <option value="seats-desc">Most seats</option>
+                    <option value="title-asc">Title (A–Z)</option>
+                </select>
+            </div>
+            <p class="text-muted small mb-3" id="eventSummary" aria-live="polite"></p>
+
+            <!-- Rendered from data/events.json by js/data-list.js -->
+            <div class="row g-4" id="eventList"></div>
+            <nav class="mt-4" id="eventPagination" aria-label="Event pages"></nav>
+        </div>
+    </section>
+
+    <!-- Notice Detail Modal (filled in by js/data-list.js) -->
+    <div class="sh-modal-overlay" id="noticeDetailModal">
         <div class="sh-modal-container">
             <div class="sh-modal-header">
-                <h4><i class="fas fa-file-alt text-danger me-2"></i> Mid-Semester Exam Guidelines</h4>
+                <h4><i class="fas fa-file-alt text-primary me-2"></i> <span data-field="title"></span></h4>
                 <button class="sh-modal-close" aria-label="Close modal">&times;</button>
             </div>
             <div class="sh-modal-body">
+                <p class="text-muted small" data-field="meta"></p>
+                <p data-field="summary"></p>
                 <p><strong>Official Directive:</strong></p>
-                <p>All students must maintain 75% attendance to be eligible for hall tickets. Seating arrangements will be displayed on StudentHub 2 days prior to each exam.</p>
-            </div>
-            <div class="sh-modal-footer">
-                <button class="btn btn-secondary btn-sm sh-modal-close">Close</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Placement Notice Detail Modal -->
-    <div class="sh-modal-overlay" id="placementNoticeModal">
-        <div class="sh-modal-container">
-            <div class="sh-modal-header">
-                <h4><i class="fas fa-briefcase text-warning me-2"></i> Placement Guidelines</h4>
-                <button class="sh-modal-close" aria-label="Close modal">&times;</button>
-            </div>
-            <div class="sh-modal-body">
-                <p>Prepare your resumes in standard PDF format. Mock interview sessions will be held in Auditorium 2 starting August 22nd.</p>
-            </div>
-            <div class="sh-modal-footer">
-                <button class="btn btn-secondary btn-sm sh-modal-close">Close</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Sports Notice Detail Modal -->
-    <div class="sh-modal-overlay" id="sportsNoticeModal">
-        <div class="sh-modal-container">
-            <div class="sh-modal-header">
-                <h4><i class="fas fa-trophy text-success me-2"></i> Sports Fest Schedule</h4>
-                <button class="sh-modal-close" aria-label="Close modal">&times;</button>
-            </div>
-            <div class="sh-modal-body">
-                <p>Matches will take place at the main university sports complex. Refreshments and certificates provided to all participants.</p>
+                <p class="mb-0" data-field="details"></p>
             </div>
             <div class="sh-modal-footer">
                 <button class="btn btn-secondary btn-sm sh-modal-close">Close</button>
@@ -171,6 +163,9 @@
 
     <!-- Custom Main JS Engine -->
     <script src="../js/main.js"></script>
+
+    <!-- Fetch API data lists (search, filter, sort, pagination) -->
+    <script src="../js/data-list.js"></script>
 </body>
 
 </html>

@@ -1,0 +1,2 @@
+# SQL scripts are for importing only, never serve them (Apache / XAMPP)
+Require all denied

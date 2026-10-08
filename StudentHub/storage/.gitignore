@@ -1,0 +1,4 @@
+# Keep submitted records out of git
+*
+!.gitignore
+!.htaccess
