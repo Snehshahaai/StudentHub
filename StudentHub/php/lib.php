@@ -144,6 +144,47 @@ function text_length(string $value): int
 }
 
 /* ==========================================================================
+   SHARED FIELD RULES (same rules as js/register.js)
+   ========================================================================== */
+
+// 4-20 chars, starts with a letter, letters/digits/underscore, single dots between parts
+const USERNAME_PATTERN = '/^(?=.{4,20}$)[a-z][a-z0-9_]*(?:\.[a-z0-9_]+)*$/';
+const RESERVED_USERNAMES = ['admin', 'administrator', 'root', 'system', 'support', 'studenthub', 'faculty', 'null', 'undefined'];
+
+// Usernames are case-insensitive: always stored and compared in lowercase
+function clean_username(mixed $value): string
+{
+    return strtolower(clean_text($value));
+}
+
+/** Error message for an invalid username, or '' when the format is fine. */
+function username_error(string $username): string
+{
+    if ($username === '') {
+        return 'Username is required.';
+    }
+    if (!preg_match(USERNAME_PATTERN, $username)) {
+        return 'Username must be 4-20 characters: start with a letter, then letters, numbers, _ or single dots.';
+    }
+    if (in_array($username, RESERVED_USERNAMES, true)) {
+        return 'This username is reserved. Please choose another one.';
+    }
+    return '';
+}
+
+/** Error message for an invalid email, or '' when the format is fine. */
+function email_error(string $email): string
+{
+    if ($email === '') {
+        return 'Email address is required.';
+    }
+    if (text_length($email) > 100 || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        return 'Enter a valid email address (e.g. student@university.edu).';
+    }
+    return '';
+}
+
+/* ==========================================================================
    IDS
    ========================================================================== */
 

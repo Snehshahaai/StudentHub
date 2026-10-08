@@ -13,9 +13,14 @@ MySQL / MariaDB database `studenthub`. 21 tables and 4 views cover every page in
    ⚠️ `schema.sql` starts with `DROP DATABASE IF EXISTS studenthub`, so re-importing it wipes all data.
 3. Open `php/db-test.php` in the browser to check the connection.
 
+**Upgrading an existing database** (created before usernames were added): run each file in `database/migrations/` once, in order. They keep all existing data.
+```
+/Applications/XAMPP/xamppfiles/bin/mysql -u root < database/migrations/001_add_student_username.sql
+```
+
 Connection settings are in `php/config.php`. The defaults are XAMPP's: `root` with no password on `127.0.0.1:3306`.
 
-Demo logins: `sneh.shah@university.edu` / `Student@123`, `admin@university.edu` / `Admin@123`.
+Demo logins: `sneh.shah@university.edu` (or username `sneh.shah`) / `Student@123`, `admin@university.edu` / `Admin@123`.
 
 ## PHP endpoints
 
@@ -23,8 +28,9 @@ Run the site with `php -S localhost:8000 router.php` from `StudentHub/` (or thro
 
 | File | Method | What it does | Tables |
 |---|---|---|---|
-| `php/register.php` | POST | Validates the form, creates the student with an enrollment no. like `2026IT205` | `students`, `audit_logs` |
-| `php/login.php` | POST | Checks email + password, starts the session, optional remember-me cookie, locks out after 5 failed tries in 15 min | `students`, `remember_tokens`, `audit_logs` |
+| `php/register.php` | POST | Validates the form, rejects a taken username/email/mobile, hashes the password with `password_hash()`, creates the student with an enrollment no. like `2026IT205` | `students`, `audit_logs` |
+| `php/check-availability.php` | GET | Live "already taken?" check for username / email while typing | `students` |
+| `php/login.php` | POST | Checks email **or username** + password, starts the session, optional remember-me cookie, locks out after 5 failed tries in 15 min | `students`, `remember_tokens`, `audit_logs` |
 | `php/logout.php` | POST | Ends the session and deletes the remember-me token | `remember_tokens` |
 | `php/me.php` | GET | Logged-in student's profile and dashboard stats as JSON (401 if logged out) | views + `assignments`, `study_materials` |
 | `php/contact.php` | POST | Saves a support ticket, linked to the student when logged in | `contact_messages` |

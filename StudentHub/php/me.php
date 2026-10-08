@@ -55,6 +55,7 @@ send_json(200, [
     'success' => true,
     'student' => [
         'enrollment_no' => $student['enrollment_no'],
+        'username'      => $student['username'],
         'full_name'     => $student['full_name'],
         'first_name'    => explode(' ', $student['full_name'])[0],
         'email'         => $student['email'],

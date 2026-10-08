@@ -1,7 +1,7 @@
 <?php
 /**
  * StudentHub - Student Login Handler
- * Checks the email + password against the `students` table, starts a
+ * Checks the email or username + password against the `students` table, starts a
  * session and optionally sets a "remember me" cookie.
  */
 
@@ -18,13 +18,18 @@ const DUMMY_HASH = '$2y$12$39uymJhLlgqJQpSrrXkhGeTjB3mV51dLSERVH1a7DkooG.rBNTx1y
 require_post(RETURN_TO);
 
 /* ---------- Sanitize & validate ---------- */
-$email    = clean_email($_POST['email'] ?? '');
+// One box accepts either: anything with "@" is treated as an email
+$rawLogin = clean_text($_POST['login'] ?? '');
+$byEmail  = str_contains($rawLogin, '@');
+$login    = $byEmail ? clean_email($rawLogin) : clean_username($rawLogin);
 $password = is_string($_POST['password'] ?? null) ? $_POST['password'] : '';
 $remember = !empty($_POST['remember']);
 
 $errors = [];
-if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    $errors['email'] = 'Enter the email address you registered with.';
+// Usernames: the database's own rule (older accounts may predate the stricter sign-up rule)
+$formatOk = $byEmail ? email_error($login) === '' : (bool) preg_match('/^[a-z][a-z0-9_.]{3,19}$/', $login);
+if (!$formatOk) {
+    $errors['login'] = 'Enter the email address or username you registered with.';
 }
 if ($password === '') {
     $errors['password'] = 'Please enter your password.';
@@ -35,21 +40,22 @@ if ($errors) {
 
 /* ---------- Authenticate ---------- */
 try {
-    if (too_many_failed_logins($email)) {
+    if (too_many_failed_logins($login)) {
         respond(false, 'Too many failed attempts. Please wait ' . LOCKOUT_MINUTES . ' minutes and try again.', [], RETURN_TO, 429);
     }
 
     $student = db_one(
-        'SELECT student_id, full_name, password_hash, status FROM students WHERE email = ?',
-        [$email]
+        'SELECT student_id, full_name, password_hash, status FROM students WHERE '
+            . ($byEmail ? 'email' : 'username') . ' = ?',
+        [$login]
     );
 
     $valid = password_verify($password, $student['password_hash'] ?? DUMMY_HASH) && $student !== null;
 
     if (!$valid) {
-        audit_log('student', $student ? (int) $student['student_id'] : null, 'login.failed', 'students', null, $email);
-        // Same message for "no such email" and "wrong password", so accounts can't be guessed
-        respond(false, 'Incorrect email or password.', ['password' => 'Incorrect email or password.'], RETURN_TO, 401);
+        audit_log('student', $student ? (int) $student['student_id'] : null, 'login.failed', 'students', null, $login);
+        // Same message for "no such account" and "wrong password", so accounts can't be guessed
+        respond(false, 'Incorrect email/username or password.', ['password' => 'Incorrect email/username or password.'], RETURN_TO, 401);
     }
 
     if ($student['status'] !== 'active') {
@@ -68,7 +74,7 @@ try {
     }
 
     login_student($id, $remember);
-    audit_log('student', $id, 'login.success', 'students', $id, $email);
+    audit_log('student', $id, 'login.success', 'students', $id, $login);
 } catch (mysqli_sql_exception $e) {
     respond_db_error($e, 'login', RETURN_TO);
 }

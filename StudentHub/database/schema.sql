@@ -76,6 +76,7 @@ CREATE TABLE faculty (
 CREATE TABLE students (
     student_id        INT UNSIGNED NOT NULL AUTO_INCREMENT,
     enrollment_no     VARCHAR(20)  NOT NULL,            -- "2026CS108" (Roll No / Student ID)
+    username          VARCHAR(20)  NOT NULL,            -- register: username (login id, lowercase)
     full_name         VARCHAR(50)  NOT NULL,            -- register: fullName
     email             VARCHAR(100) NOT NULL,            -- register: email (login id)
     mobile            CHAR(10)     NOT NULL,            -- register: mobile (10 digits, 6-9 start)
@@ -96,6 +97,7 @@ CREATE TABLE students (
     updated_at        TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (student_id),
     UNIQUE KEY uq_students_enrollment (enrollment_no),
+    UNIQUE KEY uq_students_username (username),
     UNIQUE KEY uq_students_email (email),
     UNIQUE KEY uq_students_mobile (mobile),
     KEY idx_students_status (status),
@@ -104,6 +106,7 @@ CREATE TABLE students (
         REFERENCES courses (course_id) ON UPDATE CASCADE ON DELETE RESTRICT,
     CONSTRAINT fk_students_approved_by FOREIGN KEY (approved_by)
         REFERENCES faculty (faculty_id) ON UPDATE CASCADE ON DELETE SET NULL,
+    CONSTRAINT chk_students_username CHECK (username REGEXP '^[a-z][a-z0-9_.]{3,19}$'),
     CONSTRAINT chk_students_mobile CHECK (mobile REGEXP '^[6-9][0-9]{9}$'),
     CONSTRAINT chk_students_year CHECK (year_of_study BETWEEN 1 AND 6),
     CONSTRAINT chk_students_semester CHECK (semester BETWEEN 1 AND 12)
@@ -506,6 +509,7 @@ CREATE VIEW v_student_profile AS
 SELECT
     st.student_id,
     st.enrollment_no,
+    st.username,
     st.full_name,
     st.email,
     st.mobile,

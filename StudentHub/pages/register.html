@@ -72,16 +72,24 @@
                                 <input type="text" name="website" class="sh-hp" tabindex="-1" autocomplete="off" aria-hidden="true">
 
                                 <div class="row g-3">
-                                    <div class="col-12">
+                                    <div class="col-md-6">
                                         <label for="fullName" class="form-label fw-bold">Full Name</label>
                                         <input type="text" class="form-control" id="fullName" name="fullName" placeholder="John Doe" minlength="3" maxlength="50" pattern="[A-Za-z]+( [A-Za-z]+)*" autocomplete="name" required>
                                         <div class="invalid-feedback"></div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="username" class="form-label fw-bold">Username</label>
+                                        <input type="text" class="form-control" id="username" name="username" placeholder="john.doe" minlength="4" maxlength="20" autocomplete="username" autocapitalize="none" spellcheck="false" required>
+                                        <div class="form-text">4-20 characters: letters, numbers, _ and dots. Used to log in.</div>
+                                        <div class="invalid-feedback"></div>
+                                        <div class="valid-feedback"></div>
                                     </div>
 
                                     <div class="col-md-6">
                                         <label for="email" class="form-label fw-bold">Email Address</label>
                                         <input type="email" class="form-control" id="email" name="email" placeholder="student@university.edu" maxlength="100" pattern="[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}" autocomplete="email" required>
                                         <div class="invalid-feedback"></div>
+                                        <div class="valid-feedback"></div>
                                     </div>
                                     <div class="col-md-6">
                                         <label for="mobile" class="form-label fw-bold">Mobile Number</label>

@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!form) return;
 
     const fields = {
-        email: form.querySelector('#loginEmail'),
+        login: form.querySelector('#loginId'),
         password: form.querySelector('#loginPassword')
     };
 
@@ -20,10 +20,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function validate() {
-        const email = fields.email.value.trim();
-        setFieldState(fields.email,
-            !email ? 'Please enter your email address.'
-                : /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(email) ? '' : 'Enter a valid email address.');
+        const login = fields.login.value.trim();
+        const valid = login.includes('@')
+            ? /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(login)
+            : /^[a-z][a-z0-9_.]{3,19}$/i.test(login);
+        setFieldState(fields.login,
+            !login ? 'Please enter your email address or username.'
+                : valid ? '' : 'Enter a valid email address or username.');
         setFieldState(fields.password, fields.password.value ? '' : 'Please enter your password.');
         return !form.querySelector('.is-invalid');
     }

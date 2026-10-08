@@ -1,9 +1,11 @@
 <?php
 /**
  * StudentHub - Student Registration Handler
- * Validates and sanitizes the registration form, then inserts the student
- * into the MySQL `students` table (password saved as a secure hash) with a
- * generated enrollment number such as 2026CS110.
+ * Validates and sanitizes the registration form, rejects duplicate
+ * usernames / emails / mobile numbers, then inserts the student into the
+ * MySQL `students` table with MySQLi prepared statements (see php/db.php).
+ * The password is stored only as a password_hash() hash, and an enrollment
+ * number such as 2026CS110 is generated.
  */
 
 declare(strict_types=1);
@@ -16,6 +18,12 @@ const COURSES = ['BTECH-CSE', 'BTECH-IT', 'BTECH-EC', 'BTECH-ME', 'BCA', 'MCA'];
 const YEARS   = ['1', '2', '3', '4'];
 const GENDERS = ['Male', 'Female', 'Other'];
 
+const DUPLICATE_MESSAGES = [
+    'username' => 'This username is already taken. Please choose another one.',
+    'email'    => 'This email is already registered. Try logging in instead.',
+    'mobile'   => 'This mobile number is already registered.',
+];
+
 require_post(RETURN_TO);
 
 // Pretend it worked so bots don't retry, but store nothing
@@ -26,6 +34,7 @@ if (is_spam()) {
 /* ---------- Sanitize ---------- */
 $input = [
     'fullName' => clean_text($_POST['fullName'] ?? ''),
+    'username' => clean_username($_POST['username'] ?? ''),
     'email'    => clean_email($_POST['email'] ?? ''),
     'mobile'   => clean_text($_POST['mobile'] ?? ''),
     'course'   => clean_choice($_POST['course'] ?? '', COURSES),
@@ -45,10 +54,12 @@ if ($input['fullName'] === '') {
     $errors['fullName'] = 'Name must be 3-50 letters and spaces only.';
 }
 
-if ($input['email'] === '') {
-    $errors['email'] = 'Email address is required.';
-} elseif (text_length($input['email']) > 100 || !filter_var($input['email'], FILTER_VALIDATE_EMAIL)) {
-    $errors['email'] = 'Enter a valid email address (e.g. student@university.edu).';
+if ($message = username_error($input['username'])) {
+    $errors['username'] = $message;
+}
+
+if ($message = email_error($input['email'])) {
+    $errors['email'] = $message;
 }
 
 if ($input['mobile'] === '') {
@@ -88,15 +99,19 @@ if ($errors) {
 
 /* ---------- Store in MySQL ---------- */
 try {
-    // Friendly duplicate messages (the UNIQUE keys below are the real guarantee)
-    $existing = db_one(
-        'SELECT email = ? AS same_email FROM students WHERE email = ? OR mobile = ? LIMIT 1',
-        [$input['email'], $input['email'], $input['mobile']]
+    // Report every taken field at once (the UNIQUE keys are the real guarantee)
+    $taken = db_one(
+        'SELECT COALESCE(SUM(username = ?), 0) AS username,
+                COALESCE(SUM(email = ?), 0)    AS email,
+                COALESCE(SUM(mobile = ?), 0)   AS mobile
+           FROM students
+          WHERE username = ? OR email = ? OR mobile = ?',
+        [$input['username'], $input['email'], $input['mobile'],
+         $input['username'], $input['email'], $input['mobile']]
     );
-    if ($existing) {
-        respond(false, 'This account already exists.', $existing['same_email']
-            ? ['email' => 'This email is already registered. Try logging in instead.']
-            : ['mobile' => 'This mobile number is already registered.'], RETURN_TO);
+    $duplicateErrors = array_intersect_key(DUPLICATE_MESSAGES, array_filter($taken));
+    if ($duplicateErrors) {
+        respond(false, 'Some of these details are already registered.', $duplicateErrors, RETURN_TO);
     }
 
     $course = db_one(
@@ -123,11 +138,12 @@ try {
 
         $id = db_insert(
             'INSERT INTO students
-                (enrollment_no, full_name, email, mobile, password_hash, gender,
+                (enrollment_no, username, full_name, email, mobile, password_hash, gender,
                  course_id, year_of_study, semester, status, terms_accepted_at)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())',
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())',
             [
                 $enrollmentNo,
+                $input['username'],
                 $input['fullName'],
                 $input['email'],
                 $input['mobile'],
@@ -145,11 +161,12 @@ try {
     });
 } catch (mysqli_sql_exception $e) {
     // Lost a race with an identical sign-up between the check and the insert
-    if ($e->getCode() === 1062 && str_contains($e->getMessage(), 'uq_students_email')) {
-        respond(false, 'This account already exists.', ['email' => 'This email is already registered. Try logging in instead.'], RETURN_TO);
-    }
-    if ($e->getCode() === 1062 && str_contains($e->getMessage(), 'uq_students_mobile')) {
-        respond(false, 'This account already exists.', ['mobile' => 'This mobile number is already registered.'], RETURN_TO);
+    if ($e->getCode() === 1062) {
+        foreach (DUPLICATE_MESSAGES as $field => $message) {
+            if (str_contains($e->getMessage(), "uq_students_{$field}")) {
+                respond(false, 'Some of these details are already registered.', [$field => $message], RETURN_TO);
+            }
+        }
     }
     respond_db_error($e, 'register', RETURN_TO);
 }
