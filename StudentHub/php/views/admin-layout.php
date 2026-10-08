@@ -1,6 +1,6 @@
 <?php
 /**
- * StudentHub - Shared layout for the admin / faculty pages
+ * StudentHub - Shared layout for the admin / faculty pages (students, events)
  *   admin_page_start('Students', 'students', $user);
  *   ... page content ...
  *   admin_page_end();
@@ -14,6 +14,7 @@ function admin_page_start(string $title, string $active, array $user): void
     $nav = [
         'dashboard' => ['admin-dashboard.php', 'fa-tachometer-alt', 'Admin Console'],
         'students'  => ['admin-students.php', 'fa-users', 'Students'],
+        'events'    => ['admin-events.php', 'fa-calendar-alt', 'Events'],
     ];
     ?>
 <!DOCTYPE html>
@@ -109,7 +110,7 @@ function admin_page_end(): void
     <!-- Footer -->
     <footer class="pt-4 pb-3">
         <div class="container text-center">
-            <p class="mb-0">© 2026 StudentHub | Student Management</p>
+            <p class="mb-0">© 2026 StudentHub | Admin Console</p>
         </div>
     </footer>
 
@@ -140,16 +141,25 @@ function status_badge(string $status): string
     return '<span class="badge bg-' . ($colors[$status] ?? 'secondary') . '">' . e(ucfirst($status)) . '</span>';
 }
 
-/** Current list URL with some query values changed (keeps search, filters, sort). */
+/**
+ * A list page URL with some query values changed, keeping the current search,
+ * filters and sort. Values equal to their default are left out of the URL.
+ */
+function filter_url(string $page, array $filters, array $changes, array $defaults): string
+{
+    $query = [];
+    foreach (array_merge($filters, $changes) as $key => $value) {
+        if ($value === '' || $value === 0 || $value === null || ($defaults[$key] ?? null) === $value) {
+            continue;
+        }
+        $query[$key] = $value;
+    }
+    return $page . ($query ? '?' . http_build_query($query) : '');
+}
+
+/** Student list URL (admin-students.php). */
 function list_url(array $filters, array $changes = []): string
 {
-    $query = array_filter(array_merge($filters, $changes), fn($v) => $v !== '' && $v !== 0 && $v !== null);
-    unset($query['page'], $query['per_page'], $query['sort']);
-    foreach (['page' => 1, 'per_page' => STUDENT_PER_PAGE[0], 'sort' => 'newest'] as $key => $default) {
-        $value = $changes[$key] ?? $filters[$key];
-        if ($value !== $default) {
-            $query[$key] = $value;
-        }
-    }
-    return 'admin-students.php' . ($query ? '?' . http_build_query($query) : '');
+    return filter_url('admin-students.php', $filters, $changes,
+        ['page' => 1, 'per_page' => STUDENT_PER_PAGE[0], 'sort' => 'newest']);
 }

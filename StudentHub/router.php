@@ -7,7 +7,13 @@
  */
 $path = rawurldecode(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? '/');
 
-if (preg_match('#^/(database|php/views|php/(lib|config|db|auth|guard|students)\.php)(/|$)#i', $path)) {
+if (preg_match('#^/(database|php/views|php/(lib|config|db|auth|guard|students|events|uploads)\.php)(/|$)#i', $path)) {
+    http_response_code(403);
+    exit('Forbidden');
+}
+
+// Uploaded posters: images only, so nothing uploaded can ever run as code
+if (preg_match('#^/uploads/#i', $path) && !preg_match('#^/uploads/events/[a-z0-9-]+\.(jpg|png|webp)$#', $path)) {
     http_response_code(403);
     exit('Forbidden');
 }

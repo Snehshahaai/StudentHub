@@ -46,12 +46,28 @@ Shared code: `php/db.php` (connection + prepared statements), `php/lib.php` (res
 | `pages/admin-dashboard.php` | faculty, admin | login page, or the student dashboard for students |
 | `pages/admin-students.php`, `pages/admin-student-view.php` | faculty, admin (view & search) | as above |
 | `pages/admin-student-form.php` | admin only (add & edit) | as above |
+| `pages/admin-events.php`, `admin-event-form.php`, `admin-event-view.php` | admin only | as above |
 
 ### Student management module
 
 `pages/admin-students.php` lists students with **search** (name, username, email, enrollment no., mobile), **filters** (course, year, status, gender), sorting and pagination. Admins can **add**, **edit**, **approve** and **delete**; faculty can only view. All queries live in `php/students.php` and run as MySQLi prepared statements. Every change is protected by a CSRF token, is written to `audit_logs`, and shows a success or failure message on the next page.
 
 Deleting a student also deletes their attendance, submissions, results and event registrations (`ON DELETE CASCADE`); the confirmation dialog says so.
+
+### Event management module (admins only)
+
+`pages/admin-events.php` lists events with search (title, venue, organizer, description), filters (type, status, upcoming/past), sorting and pagination. `pages/admin-event-form.php` adds and updates events, `pages/admin-event-view.php` shows the poster, details and registered students. Queries live in `php/events.php` (MySQLi prepared statements).
+
+**Poster uploads** (`php/uploads.php`), checked in this order:
+
+1. PHP upload errors (including files over `upload_max_filesize` / `post_max_size`)
+2. Size: at most **2 MB**, measured on the real file
+3. Type: **JPG, PNG or WebP**, detected from the file's contents with `finfo` (the name and the browser's claim are not trusted)
+4. The file name's extension must match the detected type
+5. Dimensions: at least 300×200, at most 6000 px per side
+6. Re-encoded with GD under a random name in `uploads/events/`. This drops hidden content such as embedded PHP code or EXIF/GPS data, and scales posters wider than 1600 px down.
+
+`uploads/events/` only ever serves `.jpg`, `.png` and `.webp` files (`.htaccess` for Apache, `router.php` for the built-in server). Replacing, removing or deleting a poster deletes the old file; the built-in images in `images/` are never deleted.
 
 Sessions end after **30 minutes** without activity and always after **8 hours**. Logging in with "Remember login state" signs you back in automatically for 30 days. To try the timeout quickly:
 ```

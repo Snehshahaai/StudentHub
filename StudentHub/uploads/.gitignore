@@ -1,0 +1,3 @@
+# Uploaded files are user content, keep them out of git
+events/*
+!events/.htaccess

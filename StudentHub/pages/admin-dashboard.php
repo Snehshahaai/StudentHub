@@ -76,6 +76,7 @@ $flash = take_flash();
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item"><a class="nav-link active" href="admin-dashboard.php"><i class="fas fa-tachometer-alt me-1"></i> Admin Console</a></li>
                     <li class="nav-item"><a class="nav-link" href="admin-students.php"><i class="fas fa-users me-1"></i> Students</a></li>
+                    <li class="nav-item"><a class="nav-link" href="admin-events.php"><i class="fas fa-calendar-alt me-1"></i> Events</a></li>
                     <li class="nav-item"><a class="nav-link" href="../index.html"><i class="fas fa-globe me-1"></i> Portal Main Site</a></li>
                 </ul>
             </div>

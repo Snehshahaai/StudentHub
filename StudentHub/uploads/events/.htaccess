@@ -1,0 +1,6 @@
+# Uploaded event posters: serve the images, never anything else (Apache / XAMPP)
+Options -Indexes
+Require all denied
+<FilesMatch "\.(jpg|png|webp)$">
+    Require all granted
+</FilesMatch>

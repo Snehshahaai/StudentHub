@@ -1785,3 +1785,53 @@ mark {
 }
 
 #contactForm .alert { border-radius: var(--radius-sm); }
+
+/* ====================================
+   EVENT POSTERS (admin event management)
+   ==================================== */
+.sh-poster-thumb {
+    width: 72px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+    display: block;
+}
+
+.sh-poster-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    background: var(--bg-surface);
+}
+
+.sh-poster-preview {
+    aspect-ratio: 3 / 2;
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius-md);
+    background: var(--bg-surface);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    overflow: hidden;
+}
+
+.sh-poster-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* File inputs: theme the "Choose file" button so its text stays readable */
+.form-control::file-selector-button {
+    background-color: var(--bg-surface);
+    color: var(--text-main);
+    border-color: var(--border-color);
+}
+
+.form-control:hover:not(:disabled):not([readonly])::file-selector-button {
+    background-color: var(--accent);
+    color: var(--on-accent);
+}
