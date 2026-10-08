@@ -4,11 +4,12 @@
 -- attendance, assignments, materials, data/*.json).
 -- Import after schema.sql:  mysql -u root studenthub < database/seed.sql
 --
--- Demo logins (change them before going live):
---   Students : sneh.shah@university.edu or username sneh.shah / Student@123
---              (also rohan.v, priya.p)
---   Admin    : admin@university.edu     / Admin@123
---   Faculty  : a.mehta@university.edu   / Faculty@123
+-- Demo accounts are LOCKED: no password works until you set them with
+--   php database/set-passwords.php
+-- which prints a new random password for each account (nothing is stored in the repo).
+--   Students : sneh.shah, rohan.v, priya.p      (@university.edu)
+--   Admin    : admin@university.edu
+--   Faculty  : a.mehta, r.joshi, n.desai         (@university.edu)
 -- ==========================================================================
 
 USE studenthub;
@@ -35,16 +36,16 @@ INSERT INTO courses (course_id, code, name, department_id, duration_years) VALUE
 
 -- Faculty & admin
 INSERT INTO faculty (faculty_id, employee_code, full_name, email, phone, password_hash, department_id, designation, role) VALUES
-    (1, 'FAC-CS-01', 'Dr. Anjali Mehta', 'a.mehta@university.edu', '9825011111', '$2y$12$IPknoW8oBRmouyRsjiQaoehpHaFdWGhgNNAExVz3GSZUbfkj9ipTq', 1, 'Associate Professor', 'faculty'),
-    (2, 'FAC-CS-02', 'Prof. Rakesh Joshi', 'r.joshi@university.edu', '9825022222', '$2y$12$IPknoW8oBRmouyRsjiQaoehpHaFdWGhgNNAExVz3GSZUbfkj9ipTq', 1, 'Assistant Professor', 'faculty'),
-    (3, 'FAC-IT-01', 'Prof. Neha Desai', 'n.desai@university.edu', '9825033333', '$2y$12$IPknoW8oBRmouyRsjiQaoehpHaFdWGhgNNAExVz3GSZUbfkj9ipTq', 2, 'Assistant Professor', 'faculty'),
-    (4, 'ADM-001', 'Campus Administrator', 'admin@university.edu', '9825000000', '$2y$12$QO3kF4fXJyFjfkshVLp16OzESHg89cyB9rke9K7j3M/T/s1Xt1wI2', NULL, 'Registrar', 'admin');
+    (1, 'FAC-CS-01', 'Dr. Anjali Mehta', 'a.mehta@university.edu', '9825011111', '!locked', 1, 'Associate Professor', 'faculty'),
+    (2, 'FAC-CS-02', 'Prof. Rakesh Joshi', 'r.joshi@university.edu', '9825022222', '!locked', 1, 'Assistant Professor', 'faculty'),
+    (3, 'FAC-IT-01', 'Prof. Neha Desai', 'n.desai@university.edu', '9825033333', '!locked', 2, 'Assistant Professor', 'faculty'),
+    (4, 'ADM-001', 'Campus Administrator', 'admin@university.edu', '9825000000', '!locked', NULL, 'Registrar', 'admin');
 
 -- Students (profile page + admin "Recent Student Enrollments")
 INSERT INTO students (student_id, enrollment_no, username, full_name, email, mobile, password_hash, gender, course_id, year_of_study, semester, address, status, approved_by, approved_at, terms_accepted_at) VALUES
-    (1, '2026CS108', 'sneh.shah', 'Sneh Shah', 'sneh.shah@university.edu', '9876543210', '$2y$12$39uymJhLlgqJQpSrrXkhGeTjB3mV51dLSERVH1a7DkooG.rBNTx1y', 'Male', 1, 3, 6, 'Ahmedabad, Gujarat, India', 'active', 4, '2026-07-01 10:00:00', '2026-06-28 18:30:00'),
-    (2, '2026CS109', 'rohan.v', 'Rohan Verma', 'rohan.v@university.edu', '9876501234', '$2y$12$39uymJhLlgqJQpSrrXkhGeTjB3mV51dLSERVH1a7DkooG.rBNTx1y', 'Male', 1, 3, 6, 'Surat, Gujarat, India', 'pending', NULL, NULL, '2026-10-05 11:15:00'),
-    (3, '2026IT204', 'priya.p', 'Priya Patel', 'priya.p@university.edu', '9898012345', '$2y$12$39uymJhLlgqJQpSrrXkhGeTjB3mV51dLSERVH1a7DkooG.rBNTx1y', 'Female', 2, 3, 6, 'Vadodara, Gujarat, India', 'active', 4, '2026-07-01 10:05:00', '2026-06-29 09:45:00');
+    (1, '2026CS108', 'sneh.shah', 'Sneh Shah', 'sneh.shah@university.edu', '9876543210', '!locked', 'Male', 1, 3, 6, 'Ahmedabad, Gujarat, India', 'active', 4, '2026-07-01 10:00:00', '2026-06-28 18:30:00'),
+    (2, '2026CS109', 'rohan.v', 'Rohan Verma', 'rohan.v@university.edu', '9876501234', '!locked', 'Male', 1, 3, 6, 'Surat, Gujarat, India', 'pending', NULL, NULL, '2026-10-05 11:15:00'),
+    (3, '2026IT204', 'priya.p', 'Priya Patel', 'priya.p@university.edu', '9898012345', '!locked', 'Female', 2, 3, 6, 'Vadodara, Gujarat, India', 'active', 4, '2026-07-01 10:05:00', '2026-06-29 09:45:00');
 
 -- Subjects (attendance page)
 INSERT INTO subjects (subject_id, code, name, short_name, department_id, semester, credits, faculty_id) VALUES

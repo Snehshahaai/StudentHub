@@ -12,8 +12,9 @@ require __DIR__ . '/auth.php';
 
 const RETURN_TO = '../pages/login.html';
 
-// Compared against when the account doesn't exist, so both cases take the same time
-const DUMMY_HASH = '$2y$12$39uymJhLlgqJQpSrrXkhGeTjB3mV51dLSERVH1a7DkooG.rBNTx1y';
+// Hash of random bytes (matches no password). Compared against when the account
+// doesn't exist, so both cases take the same time
+const DUMMY_HASH = '$2y$12$rOxKc6p1MtMNnfJ8TFNq3.FrPpPklU.LfVmwHDZ2nP2f0U8hM3c82';
 
 require_post(RETURN_TO);
 

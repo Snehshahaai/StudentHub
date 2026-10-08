@@ -21,7 +21,12 @@ MySQL / MariaDB database `studenthub`. 21 tables and 4 views cover every page in
 
 Connection settings are in `php/config.php`. The defaults are XAMPP's: `root` with no password on `127.0.0.1:3306`.
 
-Demo logins: student `sneh.shah` / `Student@123`, admin `admin@university.edu` / `Admin@123`, faculty `a.mehta@university.edu` / `Faculty@123`.
+**Demo accounts start locked.** After importing, give them passwords (printed once, never stored in the repo):
+```
+php database/set-passwords.php                                   # random password for every demo account
+php database/set-passwords.php --password='Your@Pass1' admin@university.edu   # choose one
+```
+Accounts: students `sneh.shah`, `rohan.v`, `priya.p`; admin `admin@university.edu`; faculty `a.mehta@`, `r.joshi@`, `n.desai@university.edu`.
 
 ## PHP endpoints
 
