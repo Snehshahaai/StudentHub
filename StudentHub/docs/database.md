@@ -39,6 +39,7 @@ Run the site with `php -S localhost:8000 router.php` from `StudentHub/` (or thro
 | `php/login.php` | POST | Students (email or username) and faculty/admins (email): `password_verify()`, new session id, role-based redirect, optional remember-me cookie, lockout after 5 failed tries in 15 min | `students`, `faculty`, `remember_tokens`, `audit_logs` |
 | `php/logout.php` | POST | Ends the session and deletes the remember-me token | `remember_tokens` |
 | `php/me.php` | GET | Logged-in user's details + seconds left in the session as JSON (401 if logged out or timed out). Also keeps the session alive | views + `assignments`, `study_materials` |
+| `php/api/events-api.php` | GET / POST / PUT / DELETE | Admin-only JSON API for events (list, add, update, delete); writes need the `X-CSRF-Token` header | `events`, `audit_logs` |
 | `php/contact.php` | POST | Saves a support ticket, linked to the student when logged in | `contact_messages` |
 
 Shared code: `php/db.php` (connection + prepared statements), `php/lib.php` (responses, sanitizing), `php/auth.php` (sessions, roles, timeouts, remember-me), `php/guard.php` (page protection).
@@ -48,7 +49,8 @@ Shared code: `php/db.php` (connection + prepared statements), `php/lib.php` (res
 | Page | Allowed roles | Others are sent to |
 |---|---|---|
 | `pages/student-dashboard.php`, `pages/profile.php` | student | login page, or the admin dashboard for staff |
-| `pages/admin-dashboard.php` | faculty, admin | login page, or the student dashboard for students |
+| `pages/admin-dashboard.php`, `pages/admin-events-live.php` | admin only | login page, or the user's own dashboard |
+| `pages/faculty-dashboard.php` | faculty only | login page, or the user's own dashboard |
 | `pages/admin-students.php`, `pages/admin-student-view.php` | faculty, admin (view & search) | as above |
 | `pages/admin-student-form.php` | admin only (add & edit) | as above |
 | `pages/admin-events.php`, `admin-event-form.php`, `admin-event-view.php` | admin only | as above |

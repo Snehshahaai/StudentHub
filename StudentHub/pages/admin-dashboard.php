@@ -1,245 +1,207 @@
 <?php
-// Faculty and admins only: students are sent to their own dashboard (php/guard.php)
+/**
+ * StudentHub - Admin dashboard (admins only)
+ * User statistics, student and event counts, and the latest registrations.
+ * Faculty are sent to their own dashboard by php/guard.php.
+ */
+
+declare(strict_types=1);
+
 require __DIR__ . '/../php/guard.php';
-require __DIR__ . '/../php/students.php';
+require __DIR__ . '/../php/dashboard.php';
 require __DIR__ . '/../php/views/admin-layout.php';
-$user = require_role(['faculty', 'admin']);
-$isAdmin = $user['role'] === 'admin';
+
+$user = require_role(['admin']);
 
 try {
-    // Five newest registrations for the "Recent Student Enrollments" table
-    $recent = db_all(
-        'SELECT st.student_id, st.enrollment_no, st.full_name, st.email, st.status, d.short_name AS department
-           FROM students st
-           JOIN courses c     ON c.course_id = st.course_id
-           JOIN departments d ON d.department_id = c.department_id
-          ORDER BY st.created_at DESC, st.student_id DESC
-          LIMIT 5'
-    );
+    $users   = dashboard_user_stats();
+    $events  = dashboard_event_stats();
+    $latestStudents = dashboard_latest_students();
+    $latestSignups  = dashboard_latest_event_registrations();
+    $dbError = false;
 } catch (mysqli_sql_exception $e) {
     error_log('[StudentHub admin dashboard] ' . $e->getMessage());
-    $recent = [];
+    $users = $events = $latestStudents = $latestSignups = [];
+    $dbError = true;
 }
-$flash = take_flash();
+
+$n = fn(array $row, string $key): int => (int) ($row[$key] ?? 0);
+$totalStudents = $n($users, 'students');
+$statusBars = ['active' => 'success', 'pending' => 'warning', 'inactive' => 'secondary', 'suspended' => 'danger'];
+$regColors  = ['registered' => 'success', 'attended' => 'primary', 'waitlisted' => 'warning text-dark', 'cancelled' => 'secondary'];
+
+/** "5 min ago", "3 days ago", else a date. */
+function time_ago(string $timestamp): string
+{
+    $seconds = time() - strtotime($timestamp);
+    return match (true) {
+        $seconds < 60     => 'just now',
+        $seconds < 3600   => intdiv($seconds, 60) . ' min ago',
+        $seconds < 86400  => intdiv($seconds, 3600) . ' h ago',
+        $seconds < 604800 => intdiv($seconds, 86400) . ' d ago',
+        default           => date('d M Y', strtotime($timestamp)),
+    };
+}
+
+admin_page_start('Dashboard', 'dashboard', $user);
 ?>
-<!DOCTYPE html>
-<html lang="en" data-theme="dark">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard | StudentHub</title>
-
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="../css/style.css">
-    <link rel="stylesheet" href="../css/responsive.css">
-</head>
-
-<body>
-
-    <!-- Dynamic Notification Toast Container -->
-    <div id="shToastContainer" class="sh-toast-container"></div>
-
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg">
-        <div class="container">
-            <a class="navbar-brand" href="../index.html">
-                <i class="fas fa-user-shield"></i> StudentHub Admin
-            </a>
-
-            <div class="d-flex align-items-center gap-2 ms-auto me-2 me-lg-0 order-lg-last">
-                <!-- Ends the PHP session (php/logout.php) -->
-                <form action="../php/logout.php" method="post" class="m-0">
-                    <button type="submit" class="btn btn-outline-primary btn-sm px-3" aria-label="Log out">
-                        <i class="fas fa-sign-out-alt"></i><span class="d-none d-sm-inline ms-1">Logout</span>
-                    </button>
-                </form>
-                <button type="button" class="theme-toggle-btn" aria-label="Toggle Light Dark Theme">
-                    <i class="fas fa-moon text-primary"></i>
-                    <span class="theme-text d-none d-sm-inline">Dark</span>
-                </button>
-
-                <button class="sh-hamburger-btn" data-nav-target="shNavMenu" aria-label="Toggle Mobile Menu" aria-expanded="false">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </button>
-            </div>
-
-            <div class="sh-nav-menu collapse navbar-collapse" id="shNavMenu">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link active" href="admin-dashboard.php"><i class="fas fa-tachometer-alt me-1"></i> Admin Console</a></li>
-                    <li class="nav-item"><a class="nav-link" href="admin-students.php"><i class="fas fa-users me-1"></i> Students</a></li>
-                    <li class="nav-item"><a class="nav-link" href="admin-events.php"><i class="fas fa-calendar-alt me-1"></i> Events</a></li>
-                    <li class="nav-item"><a class="nav-link" href="../index.html"><i class="fas fa-globe me-1"></i> Portal Main Site</a></li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Admin Dashboard Section -->
-    <section class="py-5">
-        <div class="container">
             <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
                 <div>
-                    <h2><i class="fas fa-tools text-primary me-2"></i> Faculty & Administrative Controls</h2>
-                    <p class="text-muted mb-0">Manage student registrations, post campus circulars, and monitor attendance metrics.</p>
-                    <p class="small mb-0 mt-2">
-                        <i class="fas fa-user-shield text-primary me-1"></i>
-                        Signed in as <strong><?= e($user['name']) ?></strong>
-                        <span class="badge bg-primary ms-1 text-uppercase"><?= e($user['role']) ?></span>
-                    </p>
+                    <h2><i class="fas fa-tachometer-alt text-primary me-2"></i> Admin Dashboard</h2>
+                    <p class="text-muted mb-0">Users, events and the latest registrations at a glance.</p>
                 </div>
-                <div>
-                    <button class="btn btn-primary me-2" data-modal-target="createNoticeModal">
-                        <i class="fas fa-bullhorn me-1"></i> Post New Notice
-                    </button>
-                    <button class="btn btn-outline-primary" data-trigger-toast data-toast-msg="Generating system health report..." data-toast-type="info">
-                        <i class="fas fa-chart-bar me-1"></i> Audit Logs
-                    </button>
+                <div class="d-flex gap-2 flex-wrap">
+                    <a href="admin-students.php" class="btn btn-outline-primary"><i class="fas fa-users me-1"></i> Students</a>
+                    <a href="admin-event-form.php" class="btn btn-primary"><i class="fas fa-plus me-1"></i> Add Event</a>
                 </div>
             </div>
 
-            <?php if ($flash): ?>
-                <div class="alert alert-<?= $flash['type'] === 'success' ? 'success' : 'danger' ?> alert-dismissible fade show" role="status" aria-live="polite">
-                    <?= e($flash['message']) ?>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <?php if ($dbError): ?>
+                <div class="alert alert-danger" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    The database is unavailable right now, so the figures could not be loaded.
                 </div>
             <?php endif; ?>
 
-            <!-- Admin Quick Stats -->
+            <!-- Headline numbers -->
             <div class="row g-4 mb-4">
-                <div class="col-md-3">
-                    <div class="card p-3 text-center border-start border-4 border-primary">
-                        <small class="text-muted fw-bold">TOTAL STUDENTS</small>
-                        <h2 class="fw-bold mb-0 text-primary" data-me="total_students">1,248</h2>
+                <div class="col-sm-6 col-lg-3">
+                    <div class="card p-3 text-center border-start border-4 border-primary h-100">
+                        <small class="text-muted fw-bold">STUDENTS</small>
+                        <h2 class="fw-bold mb-0 text-primary"><?= number_format($totalStudents) ?></h2>
+                        <small class="text-muted"><?= number_format($n($users, 'new_this_week')) ?> new this week</small>
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <div class="card p-3 text-center border-start border-4 border-success">
-                        <small class="text-muted fw-bold">ACTIVE FACULTY</small>
-                        <h2 class="fw-bold mb-0 text-success" data-me="active_faculty">84</h2>
+                <div class="col-sm-6 col-lg-3">
+                    <div class="card p-3 text-center border-start border-4 border-warning h-100">
+                        <small class="text-muted fw-bold">PENDING APPROVALS</small>
+                        <h2 class="fw-bold mb-0 text-warning"><?= number_format($n($users, 'pending')) ?></h2>
+                        <small><a href="admin-students.php?status=pending">Review students</a></small>
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <div class="card p-3 text-center border-start border-4 border-warning">
-                        <small class="text-muted fw-bold">SUBMISSIONS TODAY</small>
-                        <h2 class="fw-bold mb-0 text-warning" data-me="submissions_today">312</h2>
+                <div class="col-sm-6 col-lg-3">
+                    <div class="card p-3 text-center border-start border-4 border-success h-100">
+                        <small class="text-muted fw-bold">EVENTS</small>
+                        <h2 class="fw-bold mb-0 text-success"><?= number_format($n($events, 'total')) ?></h2>
+                        <small class="text-muted"><?= number_format($n($events, 'upcoming')) ?> upcoming</small>
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <div class="card p-3 text-center border-start border-4 border-info">
-                        <small class="text-muted fw-bold">OPEN TICKETS</small>
-                        <h2 class="fw-bold mb-0 text-info" data-me="open_tickets">0</h2>
+                <div class="col-sm-6 col-lg-3">
+                    <div class="card p-3 text-center border-start border-4 border-info h-100">
+                        <small class="text-muted fw-bold">EVENT SIGN-UPS</small>
+                        <h2 class="fw-bold mb-0 text-info"><?= number_format($n($events, 'registrations')) ?></h2>
+                        <small class="text-muted">across all events</small>
                     </div>
                 </div>
             </div>
 
-            <!-- Student Management Table (latest registrations from MySQL) -->
-            <div class="card shadow-sm">
-                <div class="card-header bg-surface py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
-                    <h5 class="mb-0 fw-bold"><i class="fas fa-users text-primary me-2"></i> Recent Student Enrollments</h5>
-                    <a href="admin-students.php" class="btn btn-sm btn-outline-primary"><i class="fas fa-list me-1"></i> Manage All Students</a>
-                </div>
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="table-primary">
-                            <tr>
-                                <th>Student ID</th>
-                                <th>Name</th>
-                                <th>Department</th>
-                                <th>Email</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        <?php if (!$recent): ?>
-                            <tr><td colspan="6" class="text-center text-muted py-4">No students yet.</td></tr>
+            <!-- User statistics -->
+            <div class="row g-4 mb-4">
+                <div class="col-lg-7">
+                    <div class="card shadow-sm h-100 p-3">
+                        <h5 class="fw-bold mb-3"><i class="fas fa-chart-pie text-primary me-2"></i> Students by status</h5>
+                        <?php if ($totalStudents): ?>
+                            <div class="progress mb-3" style="height: 14px" role="img"
+                                 aria-label="Students by status: <?= implode(', ', array_map(fn($s) => $n($users, $s) . ' ' . $s, array_keys($statusBars))) ?>">
+                                <?php foreach ($statusBars as $status => $color): ?>
+                                    <?php if ($n($users, $status)): ?>
+                                        <div class="progress-bar bg-<?= $color ?>" style="width: <?= round($n($users, $status) * 100 / $totalStudents, 2) ?>%"></div>
+                                    <?php endif; ?>
+                                <?php endforeach; ?>
+                            </div>
+                            <div class="row g-2">
+                                <?php foreach ($statusBars as $status => $color): ?>
+                                    <div class="col-6 col-md-3">
+                                        <span class="badge bg-<?= $color ?><?= $color === 'warning' ? ' text-dark' : '' ?>"><?= e(ucfirst($status)) ?></span>
+                                        <strong class="ms-1"><?= number_format($n($users, $status)) ?></strong>
+                                        <div class="small text-muted"><?= round($n($users, $status) * 100 / $totalStudents) ?>%</div>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php else: ?>
+                            <p class="text-muted mb-0">No students have registered yet.</p>
                         <?php endif; ?>
-                        <?php foreach ($recent as $s): ?>
-                            <tr>
-                                <td><?= e($s['enrollment_no']) ?></td>
-                                <td class="fw-bold"><a href="admin-student-view.php?id=<?= (int) $s['student_id'] ?>"><?= e($s['full_name']) ?></a></td>
-                                <td><?= e($s['department']) ?></td>
-                                <td><?= e($s['email']) ?></td>
-                                <td><?= status_badge($s['status']) ?></td>
-                                <td class="text-nowrap">
-                                    <?php if ($isAdmin && $s['status'] === 'pending'): ?>
-                                        <form method="post" action="admin-students.php" class="d-inline">
-                                            <?= csrf_field() ?>
-                                            <input type="hidden" name="action" value="approve">
-                                            <input type="hidden" name="student_id" value="<?= (int) $s['student_id'] ?>">
-                                            <input type="hidden" name="back" value="admin-dashboard.php">
-                                            <button type="submit" class="btn btn-sm btn-success"><i class="fas fa-check"></i> Approve</button>
-                                        </form>
-                                    <?php endif; ?>
-                                    <a href="admin-student-view.php?id=<?= (int) $s['student_id'] ?>" class="btn btn-sm btn-outline-primary" title="View" aria-label="View <?= e($s['full_name']) ?>"><i class="fas fa-eye"></i></a>
-                                    <?php if ($isAdmin): ?>
-                                        <a href="admin-student-form.php?id=<?= (int) $s['student_id'] ?>" class="btn btn-sm btn-outline-primary" title="Edit" aria-label="Edit <?= e($s['full_name']) ?>"><i class="fas fa-edit"></i></a>
-                                    <?php endif; ?>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                        </tbody>
-                    </table>
+                    </div>
+                </div>
+                <div class="col-lg-5">
+                    <div class="card shadow-sm h-100 p-3">
+                        <h5 class="fw-bold mb-3"><i class="fas fa-user-friends text-primary me-2"></i> Users by role</h5>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item bg-transparent d-flex justify-content-between px-0"><span><i class="fas fa-user-graduate me-2 text-muted"></i>Students</span><strong><?= number_format($totalStudents) ?></strong></li>
+                            <li class="list-group-item bg-transparent d-flex justify-content-between px-0"><span><i class="fas fa-chalkboard-teacher me-2 text-muted"></i>Faculty</span><strong><?= number_format($n($users, 'faculty')) ?></strong></li>
+                            <li class="list-group-item bg-transparent d-flex justify-content-between px-0"><span><i class="fas fa-user-shield me-2 text-muted"></i>Admins</span><strong><?= number_format($n($users, 'admins')) ?></strong></li>
+                        </ul>
+                        <p class="small text-muted mt-3 mb-0">
+                            Events: <?= $n($events, 'upcoming') ?> upcoming · <?= $n($events, 'completed') ?> completed · <?= $n($events, 'cancelled') ?> cancelled
+                        </p>
+                    </div>
                 </div>
             </div>
-        </div>
-    </section>
 
-    <!-- Create Notice Modal -->
-    <div class="sh-modal-overlay" id="createNoticeModal">
-        <div class="sh-modal-container">
-            <div class="sh-modal-header">
-                <h4><i class="fas fa-bullhorn text-primary me-2"></i> Post Campus Notice</h4>
-                <button class="sh-modal-close" aria-label="Close modal">&times;</button>
+            <!-- Latest registrations -->
+            <div class="row g-4">
+                <div class="col-xl-7">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header bg-surface py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                            <h5 class="mb-0 fw-bold"><i class="fas fa-user-plus text-primary me-2"></i> Latest student registrations</h5>
+                            <a href="admin-students.php" class="btn btn-sm btn-outline-primary">All students</a>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-primary">
+                                    <tr><th>Student</th><th class="d-none d-md-table-cell">Department</th><th>Status</th><th>Registered</th></tr>
+                                </thead>
+                                <tbody>
+                                <?php if (!$latestStudents): ?>
+                                    <tr><td colspan="4" class="text-center text-muted py-4">No students yet.</td></tr>
+                                <?php endif; ?>
+                                <?php foreach ($latestStudents as $s): ?>
+                                    <tr>
+                                        <td>
+                                            <a href="admin-student-view.php?id=<?= (int) $s['student_id'] ?>" class="fw-bold"><?= e($s['full_name']) ?></a>
+                                            <div class="small text-muted"><?= e($s['enrollment_no']) ?></div>
+                                        </td>
+                                        <td class="d-none d-md-table-cell"><?= e($s['department']) ?></td>
+                                        <td><?= status_badge($s['status']) ?></td>
+                                        <td class="text-nowrap small" title="<?= e($s['created_at']) ?>"><?= e(time_ago($s['created_at'])) ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-5">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header bg-surface py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                            <h5 class="mb-0 fw-bold"><i class="fas fa-ticket-alt text-primary me-2"></i> Latest event sign-ups</h5>
+                            <a href="admin-events.php" class="btn btn-sm btn-outline-primary">All events</a>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-primary">
+                                    <tr><th>Student</th><th>Event</th><th>When</th></tr>
+                                </thead>
+                                <tbody>
+                                <?php if (!$latestSignups): ?>
+                                    <tr><td colspan="3" class="text-center text-muted py-4">No event sign-ups yet.</td></tr>
+                                <?php endif; ?>
+                                <?php foreach ($latestSignups as $r): ?>
+                                    <tr>
+                                        <td>
+                                            <a href="admin-student-view.php?id=<?= (int) $r['student_id'] ?>" class="fw-bold"><?= e($r['full_name']) ?></a>
+                                            <div><span class="badge bg-<?= $regColors[$r['status']] ?? 'secondary' ?>"><?= e(ucfirst($r['status'])) ?></span></div>
+                                        </td>
+                                        <td><a href="admin-event-view.php?id=<?= (int) $r['event_id'] ?>"><?= e($r['event_title']) ?></a>
+                                            <?php if ($r['team_name']): ?><div class="small text-muted">Team: <?= e($r['team_name']) ?></div><?php endif; ?></td>
+                                        <td class="text-nowrap small" title="<?= e($r['registered_at']) ?>"><?= e(time_ago($r['registered_at'])) ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="sh-modal-body">
-                <form onsubmit="event.preventDefault(); StudentHub.closeModal('createNoticeModal'); StudentHub.showNotification('Notice broadcasted to all students!', 'success');">
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Notice Headline</label>
-                        <input type="text" class="form-control" placeholder="e.g. Schedule for Sports Week" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Notice Category</label>
-                        <select class="form-select">
-                            <option>Academic Announcement</option>
-                            <option>Exam Circular</option>
-                            <option>Event / Placement</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Notice Content</label>
-                        <textarea class="form-control" rows="4" placeholder="Enter details..." required></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">Broadcast Notice</button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Footer -->
-    <footer class="pt-4 pb-3">
-        <div class="container text-center">
-            <p class="mb-0">© 2026 StudentHub | Admin Console</p>
-        </div>
-    </footer>
-
-    <!-- Bootstrap 5 JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- Custom Main JS Engine -->
-    <script src="../js/main.js"></script>
-
-    <!-- Loads live stats from php/me.php and handles the session timeout -->
-    <script src="../js/account.js"></script>
-</body>
-
-</html>
+<?php admin_page_end();

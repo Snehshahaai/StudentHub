@@ -8,14 +8,34 @@
 
 declare(strict_types=1);
 
+/**
+ * Menu entries for a role: key => [page, icon, label].
+ * Admins get everything; faculty only see the pages they may open.
+ */
+function nav_items(string $role): array
+{
+    $items = [
+        'dashboard' => ['admin-dashboard.php',  'fa-tachometer-alt', 'Admin Console', ['admin']],
+        'faculty'   => ['faculty-dashboard.php', 'fa-tachometer-alt', 'Dashboard',     ['faculty']],
+        'students'  => ['admin-students.php',    'fa-users',          'Students',      ['admin', 'faculty']],
+        'events'    => ['admin-events.php',      'fa-calendar-alt',   'Events',        ['admin']],
+        'live'      => ['admin-events-live.php', 'fa-bolt',           'Live Events',   ['admin']],
+    ];
+    $menu = [];
+    foreach ($items as $key => [$href, $icon, $label, $roles]) {
+        if (in_array($role, $roles, true)) {
+            $menu[$key] = [$href, $icon, $label];
+        }
+    }
+    return $menu;
+}
+
 function admin_page_start(string $title, string $active, array $user): void
 {
     $flash = take_flash();
-    $nav = [
-        'dashboard' => ['admin-dashboard.php', 'fa-tachometer-alt', 'Admin Console'],
-        'students'  => ['admin-students.php', 'fa-users', 'Students'],
-        'events'    => ['admin-events.php', 'fa-calendar-alt', 'Events'],
-    ];
+    $nav = nav_items($user['role']);
+    $home = DASHBOARDS[$user['role']];
+    $brand = $user['role'] === 'admin' ? 'StudentHub Admin' : 'StudentHub Faculty';
     ?>
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
@@ -23,7 +43,7 @@ function admin_page_start(string $title, string $active, array $user): void
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= e($title) ?> | StudentHub Admin</title>
+    <title><?= e($title) ?> | <?= e($brand) ?></title>
 
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -44,8 +64,8 @@ function admin_page_start(string $title, string $active, array $user): void
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg">
         <div class="container">
-            <a class="navbar-brand" href="admin-dashboard.php">
-                <i class="fas fa-user-shield"></i> StudentHub Admin
+            <a class="navbar-brand" href="<?= e($home) ?>">
+                <i class="fas fa-user-shield"></i> <?= e($brand) ?>
             </a>
 
             <div class="d-flex align-items-center gap-2 ms-auto me-2 me-lg-0 order-lg-last">

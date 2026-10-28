@@ -4,7 +4,7 @@
  *
  * Two kinds of account can log in:
  *   - students (role "student")           -> pages/student-dashboard.php
- *   - faculty  (role "faculty" or "admin") -> pages/admin-dashboard.php
+ *   - faculty  (role "faculty") -> pages/faculty-dashboard.php, (role "admin") -> pages/admin-dashboard.php
  *
  * The session stores only who is logged in and when. Sessions end after
  * SESSION_IDLE_TIMEOUT seconds without a request, and always after
@@ -31,7 +31,7 @@ define('SESSION_ABSOLUTE_TIMEOUT', (int) (getenv('SESSION_ABSOLUTE_TIMEOUT') ?: 
 // Where each role lands after logging in (relative to pages/)
 const DASHBOARDS = [
     'student' => 'student-dashboard.php',
-    'faculty' => 'admin-dashboard.php',
+    'faculty' => 'faculty-dashboard.php',
     'admin'   => 'admin-dashboard.php',
 ];
 
